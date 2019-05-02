@@ -11,7 +11,9 @@ public class ShaderProgram {
     private int vertID;
     private int fragID;
 
-    public ShaderProgram(){}
+    public ShaderProgram(){
+
+    }
 
 
     public static String loadAsString(String location){
@@ -33,8 +35,8 @@ public class ShaderProgram {
 
     public int load(){
 
-        String vert = loadAsString("vertex.glsl");
-        String frag = loadAsString("fragment.glsl");
+       String vert = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/vertex.glsl");
+        String frag = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/fragment.glsl");
 
         program = glCreateProgram();
 
@@ -59,10 +61,9 @@ public class ShaderProgram {
 
         glLinkProgram(program);
         glValidateProgram(program);
-
-
         return program;
     }
+
     public void use() {
         glUseProgram(program);
     }
