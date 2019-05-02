@@ -18,7 +18,7 @@ void main(void) {
     vec4 kd=color; //Kolor obiektu
     vec4 ld=vec4(1,1,1,1); //Kolor œwiat³a
 
-    vec4 lp=vec4(0,0,-6,1);//Wspó³rzêdne Ÿród³a œwiat³a w przestrzeni œwiata
+    vec4 lp=vec4(0,0,-10,1);//Wspó³rzêdne Ÿród³a œwiat³a w przestrzeni œwiata
 
     vec4 l=normalize(V*(lp-M*vertex)); //Wektor "do œwiat³a" w przestrzeni oka
     vec4 n=normalize(V*M*normal); //Wektor normalny w przestrzeni oka

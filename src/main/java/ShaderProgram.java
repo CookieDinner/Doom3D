@@ -12,7 +12,6 @@ public class ShaderProgram {
     private int fragID;
 
     public ShaderProgram(){
-
     }
 
 
@@ -33,10 +32,10 @@ public class ShaderProgram {
     }
 
 
-    public int load(){
+    public void load(){
 
-       String vert = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/vertex.glsl");
-        String frag = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/fragment.glsl");
+       String vert = loadAsString("C:\\Users\\Damian IT\\Desktop\\Doom3D-testing1\\src\\main\\java\\vertex.glsl");
+        String frag = loadAsString("C:\\Users\\Damian IT\\Desktop\\Doom3D-testing1\\src\\main\\java\\fragment.glsl");
 
         program = glCreateProgram();
 
@@ -61,7 +60,6 @@ public class ShaderProgram {
 
         glLinkProgram(program);
         glValidateProgram(program);
-        return program;
     }
 
     public void use() {

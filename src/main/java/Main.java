@@ -18,19 +18,22 @@ import static org.lwjgl.system.MemoryUtil.*;
 
 public class Main {
 
+    private static final float PI = 3.14f;
     // The window handle
     private long window;
     private float aspectRatio;
+    private float speed_x=0;
+    private float speed_y=0;
+    private int vaoId=0;
+    private int vboId=0;
+    private int vboId1=0;
+    private int vboId2=0;
+
     Matrix4f M = new Matrix4f();
     Matrix4f P = new Matrix4f();
     Matrix4f V = new Matrix4f();
     private MyCube cube = new MyCube();
     ShaderProgram sp = new ShaderProgram();
-
-    float speed=0;
-    float obrspeed=0;
-    private int vaoId = 0;
-    private int vboId = 0;
 
     public void run() {
 
@@ -64,14 +67,16 @@ public class Main {
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(window, true);
             if (action==GLFW_PRESS) {
-                if (key == GLFW_KEY_LEFT) speed=3.14f;
-                if (key == GLFW_KEY_RIGHT) speed = -3.14f;
-                if (key == GLFW_KEY_UP) obrspeed=0.1f;
-                if (key == GLFW_KEY_DOWN) obrspeed=-0.1f;
+                if (key==GLFW_KEY_LEFT) speed_x=-PI/2;
+                if (key==GLFW_KEY_RIGHT) speed_x=PI/2;
+                if (key==GLFW_KEY_UP) speed_y=PI/2;
+                if (key==GLFW_KEY_DOWN) speed_y=-PI/2;
             }
             if (action==GLFW_RELEASE) {
-                speed=0;
-                obrspeed=0;
+                if (key==GLFW_KEY_LEFT) speed_x=0;
+                if (key==GLFW_KEY_RIGHT) speed_x=0;
+                if (key==GLFW_KEY_UP) speed_y=0;
+                if (key==GLFW_KEY_DOWN) speed_y=0;
             }
         });
 
@@ -96,18 +101,21 @@ public class Main {
     }
 
 
-    private void drawScene(long window, float angle, float obroc){
+    private void drawScene(long window, float angle_x, float angle_y){
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        sp.use();
+        GL30.glBindVertexArray(vaoId);
 
-        V.lookAt(
-                new Vector3f(0,0,-5),
+        V.identity().lookAt(
+                new Vector3f(0,0,-6),
                 new Vector3f(0,0,0),
                 new Vector3f(0,1,0));
-        P.perspective(50.0f*(float)Math.PI/180.0f, aspectRatio,0.01f,50.0f);
-        M.identity();
-        sp.use();
+        P.identity().perspective(50.0f*(float)Math.PI/180.0f, aspectRatio,0.01f,50.0f);
+        M.identity().rotate(angle_x,new Vector3f(0f,1.0f,0f),M).rotate(angle_y,new Vector3f(1.0f,0f,0f),M);
+
+
 
         FloatBuffer fbP = BufferUtils.createFloatBuffer(16);
         FloatBuffer fbV = BufferUtils.createFloatBuffer(16);
@@ -117,21 +125,22 @@ public class Main {
         glUniformMatrix4fv(sp.u("V"),false,V.get(fbV));
         glUniformMatrix4fv(sp.u("M"),false,M.get(fbM));
 
-
         glEnableVertexAttribArray(sp.a("vertex"));
-        glVertexAttribPointer(sp.a("vertex"),4,GL_FLOAT,false,0,cube.makeFloatBuffer(cube.myCubeVertices));
+        glVertexAttribPointer(sp.a("vertex"),4,GL_FLOAT,false,0,cube.fbVertex);
 
         glEnableVertexAttribArray(sp.a("normal"));
-        glVertexAttribPointer(sp.a("normal"),4,GL_FLOAT,false,0,cube.makeFloatBuffer(cube.myCubeNormals));
+        glVertexAttribPointer(sp.a("normal"),4,GL_FLOAT,false,0,cube.fbNormals);
 
         glEnableVertexAttribArray(sp.a("color"));
-        glVertexAttribPointer(sp.a("color"),4,GL_FLOAT,false,0,cube.makeFloatBuffer(cube.myCubeColors));
+        glVertexAttribPointer(sp.a("color"),4,GL_FLOAT,false,0,cube.fbColors);
 
         glDrawArrays(GL_TRIANGLES, 0, cube.myCubeVertexCount);
 
         glDisableVertexAttribArray(sp.a("vertex"));
         glDisableVertexAttribArray(sp.a("normal"));
         glDisableVertexAttribArray(sp.a("color"));
+
+        GL30.glBindVertexArray(0);
 
         glfwSwapBuffers(window);
     }
@@ -142,23 +151,67 @@ public class Main {
 
         GL.createCapabilities();
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.0f, 0.3f, 0.4f, 0.0f);
 
         sp.load();
+        initBuffer();
 
-        float angle=0; //Aktualny kąt obrotu obiektu
-        float obroc=0;
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
+        float angle_x=0; //Aktualny kąt obrotu obiektu
+        float angle_y=0; //Aktualny kąt obrotu obiektu
         glfwSetTime(0); //Zeruj timer
 
         while ( !glfwWindowShouldClose(window) ) {
-            angle+=speed*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
-            obroc+=obrspeed*glfwGetTime();
-            if(obroc==1)obroc=0;
-
-            drawScene(window, angle, obroc );
+            angle_x+=speed_x*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
+            angle_y+=speed_y*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
+            glfwSetTime(0); //Zeruj timer
+            drawScene(window,angle_x,angle_y); //Wykonaj procedurę rysującą
             glfwPollEvents();
 
         }
+    }
+
+    public void initBuffer(){
+
+        // Create a new Vertex Array Object in memory and select it (bind)
+        // A VAO can have up to 16 attributes (VBO's) assigned to it by default
+        vaoId = GL30.glGenVertexArrays();
+        GL30.glBindVertexArray(vaoId);
+
+        // Create a new Vertex Buffer Object in memory and select it (bind)
+        // A VBO is a collection of Vectors which in this case resemble the location of each vertex.
+        vboId = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, cube.fbVertex, GL15.GL_STATIC_DRAW);
+        // Put the VBO in the attributes list at index 0
+        GL20.glVertexAttribPointer(sp.a("vertex"), 4, GL11.GL_FLOAT, false, 0, 0);
+        // Deselect (bind to 0) the VBO
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+
+
+        vboId1 = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId1);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, cube.fbNormals, GL15.GL_STATIC_DRAW);
+        // Put the VBO in the attributes list at index 0
+        GL20.glVertexAttribPointer(sp.a("normal"), 4, GL11.GL_FLOAT, false, 0, 0);
+        // Deselect (bind to 0) the VBO
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+
+
+        vboId2 = GL15.glGenBuffers();
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboId2);
+        GL15.glBufferData(GL15.GL_ARRAY_BUFFER, cube.fbColors, GL15.GL_STATIC_DRAW);
+        // Put the VBO in the attributes list at index 0
+        GL20.glVertexAttribPointer(sp.a("color"), 4, GL11.GL_FLOAT, false, 0, 0);
+        // Deselect (bind to 0) the VBO
+        GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+
+        // Deselect (bind to 0) the VAO
+        GL30.glBindVertexArray(0);
     }
 
     public static void main(String[] args) {

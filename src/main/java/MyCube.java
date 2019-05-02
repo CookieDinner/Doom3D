@@ -1,10 +1,25 @@
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import org.lwjgl.BufferUtils;
+
 import java.nio.FloatBuffer;
-import java.util.ArrayList;
 
 public class MyCube {
     public int myCubeVertexCount=36;
+    public FloatBuffer fbVertex;
+    public FloatBuffer fbColors;
+    public FloatBuffer fbNormals;
+
+
+    public static FloatBuffer makeFloatBuffer(float[] arr) {
+        FloatBuffer fb = BufferUtils.createFloatBuffer(4*arr.length);
+        fb.put(arr).flip();
+        return fb;
+    }
+
+    public MyCube(){
+        fbVertex = makeFloatBuffer(myCubeVertices);
+        fbColors = makeFloatBuffer(myCubeColors);
+        fbNormals = makeFloatBuffer(myCubeVertexNormals);
+    }
 
     public float myCubeVertices[]={
             //Ściana 1
@@ -66,16 +81,6 @@ public class MyCube {
 
 
     };
-    public FloatBuffer buffVerts;
-
-    public static FloatBuffer makeFloatBuffer(float[] arr) {
-        ByteBuffer bb = ByteBuffer.allocateDirect(arr.length*4);
-        bb.order(ByteOrder.nativeOrder());
-        FloatBuffer fb = bb.asFloatBuffer();
-        fb.put(arr);
-        fb.position(0);
-        return fb;
-    }
 
     public float myCubeColors[]={
             //Ściana 1
