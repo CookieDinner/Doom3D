@@ -5,6 +5,7 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.lang.Math;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.Callbacks.*;
@@ -92,6 +93,9 @@ public class Main {
     }
 
     private void drawScene(long window, float angle_x, float angle_y){
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
         V.lookAt(
                 new Vector3f(0,0,-5),
                 new Vector3f(0,0,0),
@@ -99,8 +103,32 @@ public class Main {
         P.perspective(50.0f*(float)Math.PI/180.0f, aspectRatio,0.01f,50.0f);
         M.identity();
         sp.use();
-        //glUniformMatrix4fv(sp.u("P"),
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        FloatBuffer fbP = BufferUtils.createFloatBuffer(16);
+        FloatBuffer fbV = BufferUtils.createFloatBuffer(16);
+        FloatBuffer fbM = BufferUtils.createFloatBuffer(16);
+
+        glUniformMatrix4fv(sp.u("P"),false,P.get(fbP));
+        glUniformMatrix4fv(sp.u("P"),false,V.get(fbV));
+        glUniformMatrix4fv(sp.u("P"),false,M.get(fbM));
+
+
+        glEnableVertexAttribArray(sp.a("vertex"));
+        glVertexAttribPointer(sp.a("vertex"),4,GL_FLOAT,false,0,cube.makeFloatBuffer(cube.myCubeVertices));
+
+        glEnableVertexAttribArray(sp.a("normal"));
+        glVertexAttribPointer(sp.a("normal"),4,GL_FLOAT,false,0,cube.makeFloatBuffer(cube.myCubeNormals));
+
+        glEnableVertexAttribArray(sp.a("color"));
+        glVertexAttribPointer(sp.a("color"),4,GL_FLOAT,false,0,cube.makeFloatBuffer(cube.myCubeColors));
+
+        glDrawArrays(GL_TRIANGLES, 0, cube.myCubeVertexCount);
+
+        glDisableVertexAttribArray(sp.a("vertex"));
+        glDisableVertexAttribArray(sp.a("normal"));
+        glDisableVertexAttribArray(sp.a("color"));
+
+        glfwSwapBuffers(window);
     }
 
     private void loop() {

@@ -81,7 +81,5 @@ public class ShaderProgram {
     public int u(String varName){
         return glGetUniformLocation(program, varName);
     }
-    public int a(String varName){
-        return glGetAttribLocation(program, varName);
-    }
+    public int a(String varName){ return glGetAttribLocation(program, varName); }
 }
