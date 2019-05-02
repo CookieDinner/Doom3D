@@ -1,13 +1,16 @@
+import org.joml.*;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
+import java.lang.Math;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -16,8 +19,15 @@ public class Main {
 
     // The window handle
     private long window;
+    private float aspectRatio;
+    Matrix4f M = new Matrix4f();
+    Matrix4f P = new Matrix4f();
+    Matrix4f V = new Matrix4f();
+    private MyCube cube = new MyCube();
+    ShaderProgram sp = new ShaderProgram();
 
     public void run() {
+
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
 
         init();
@@ -66,7 +76,7 @@ public class Main {
             IntBuffer pHeight = stack.mallocInt(1); // int*
 
             glfwGetWindowSize(window, pWidth, pHeight);
-
+            aspectRatio = (float)pWidth.get(0)/(float)pHeight.get(0);
             GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
             glfwSetWindowPos(
@@ -81,16 +91,28 @@ public class Main {
         glfwShowWindow(window);
     }
 
+    private void drawScene(long window, float angle_x, float angle_y){
+        V.lookAt(
+                new Vector3f(0,0,-5),
+                new Vector3f(0,0,0),
+                new Vector3f(0,1,0));
+        P.perspective(50.0f*(float)Math.PI/180.0f, aspectRatio,0.01f,50.0f);
+        M.identity();
+        sp.use();
+        //glUniformMatrix4fv(sp.u("P"),
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+
     private void loop() {
 
-        ShaderProgram sp = new ShaderProgram();
+
+
         GL.createCapabilities();
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
         while ( !glfwWindowShouldClose(window) ) {
-            sp.use();
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            drawScene(window, 0, 0 );
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
