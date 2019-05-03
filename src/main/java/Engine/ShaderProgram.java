@@ -1,3 +1,7 @@
+package Engine;
+
+import Engine.FileLoader;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,7 +16,7 @@ public class ShaderProgram implements FileLoader {
     private int fragID;
 
     public String generateAbsolutePath(String fileName) {
-        return generateAbsolutePath("/src/main/java/",fileName);
+        return generateAbsolutePath("/src/main/glsl/",fileName);
     }
 
     public ShaderProgram(){

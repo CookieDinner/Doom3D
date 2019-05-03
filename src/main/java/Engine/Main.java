@@ -1,3 +1,6 @@
+package Engine;
+
+import Entities.MyCube;
 import org.joml.*;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
@@ -5,7 +8,6 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.lang.Math;
-import java.net.URISyntaxException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -122,18 +124,18 @@ public class Main implements FileLoader {
         FloatBuffer fbV = BufferUtils.createFloatBuffer(16);
         FloatBuffer fbM = BufferUtils.createFloatBuffer(16);
 
-        glUniformMatrix4fv(sp.u("P"),false,P.get(fbP));
-        glUniformMatrix4fv(sp.u("V"),false,V.get(fbV));
-        glUniformMatrix4fv(sp.u("M"),false,M.get(fbM));
+        GL20.glUniformMatrix4fv(sp.u("P"),false,P.get(fbP));
+        GL20.glUniformMatrix4fv(sp.u("V"),false,V.get(fbV));
+        GL20.glUniformMatrix4fv(sp.u("M"),false,M.get(fbM));
 
         glEnableVertexAttribArray(sp.a("vertex"));
-        glVertexAttribPointer(sp.a("vertex"),4,GL_FLOAT,false,0,cube.fbVertex);
+        GL20.glVertexAttribPointer(sp.a("vertex"),4,GL_FLOAT,false,0,cube.fbVertex);
 
         glEnableVertexAttribArray(sp.a("normal"));
-        glVertexAttribPointer(sp.a("normal"),4,GL_FLOAT,false,0,cube.fbNormals);
+        GL20.glVertexAttribPointer(sp.a("normal"),4,GL_FLOAT,false,0,cube.fbNormals);
 
         glEnableVertexAttribArray(sp.a("color"));
-        glVertexAttribPointer(sp.a("color"),4,GL_FLOAT,false,0,cube.fbColors);
+        GL20.glVertexAttribPointer(sp.a("color"),4,GL_FLOAT,false,0,cube.fbColors);
 
         glDrawArrays(GL_TRIANGLES, 0, cube.myCubeVertexCount);
 
