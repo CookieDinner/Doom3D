@@ -34,8 +34,8 @@ public class ShaderProgram {
 
     public void load(){
 
-       String vert = loadAsString("C:\\Users\\Damian IT\\Desktop\\Doom3D-testing1\\src\\main\\java\\vertex.glsl");
-        String frag = loadAsString("C:\\Users\\Damian IT\\Desktop\\Doom3D-testing1\\src\\main\\java\\fragment.glsl");
+       String vert = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/vertex.glsl");
+        String frag = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/fragment.glsl");
 
         program = glCreateProgram();
 

@@ -109,7 +109,7 @@ public class Main {
         GL30.glBindVertexArray(vaoId);
 
         V.identity().lookAt(
-                new Vector3f(0,0,-6),
+                new Vector3f(0,0,-5),
                 new Vector3f(0,0,0),
                 new Vector3f(0,1,0));
         P.identity().perspective(50.0f*(float)Math.PI/180.0f, aspectRatio,0.01f,50.0f);
