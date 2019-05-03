@@ -5,11 +5,15 @@ import java.io.IOException;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
-public class ShaderProgram {
+public class ShaderProgram implements FileLoader {
 
     private int program;
     private int vertID;
     private int fragID;
+
+    public String generateAbsolutePath(String fileName) {
+        return generateAbsolutePath("/src/main/java/",fileName);
+    }
 
     public ShaderProgram(){
     }
@@ -34,8 +38,8 @@ public class ShaderProgram {
 
     public void load(){
 
-       String vert = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/vertex.glsl");
-        String frag = loadAsString("/home/dejmian/repos/Doom3D/src/main/java/fragment.glsl");
+       String vert = loadAsString(generateAbsolutePath("vertex.glsl"));
+        String frag = loadAsString(generateAbsolutePath("fragment.glsl"));
 
         program = glCreateProgram();
 

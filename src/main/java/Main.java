@@ -5,6 +5,7 @@ import org.lwjgl.opengl.*;
 import org.lwjgl.system.*;
 
 import java.lang.Math;
+import java.net.URISyntaxException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -16,7 +17,7 @@ import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 
-public class Main {
+public class Main implements FileLoader {
 
     private static final float PI = 3.14f;
     // The window handle
@@ -169,7 +170,6 @@ public class Main {
             glfwSetTime(0); //Zeruj timer
             drawScene(window,angle_x,angle_y); //Wykonaj procedurę rysującą
             glfwPollEvents();
-
         }
     }
 
