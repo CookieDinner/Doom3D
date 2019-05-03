@@ -1,0 +1,6 @@
+- stworzyc klasy do renderowania jednostek, aby kazda miala swoje VAO oraz VBO uporzadkowane.
+- stworzyc mozliwosc kilku shaderow
+- stworzyc klase pozwalajaca na wczytywanie obiektow z blendera
+- stworzenie kamery ktora rusza sie niezaleznie we wszystkie kierunki
+- dodanie do klasy (podstawowej)jednostki renderowania mozliwosc dodania tekstur
+- ustandaryzowanie shaderow zeby mialy takie same numeracje tych zmiennych artrybutów
