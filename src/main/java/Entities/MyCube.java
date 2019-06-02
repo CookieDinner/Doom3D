@@ -9,6 +9,9 @@ public class MyCube {
     public FloatBuffer fbVertex;
     public FloatBuffer fbColors;
     public FloatBuffer fbNormals;
+    public FloatBuffer fbTexCoords;
+    public FloatBuffer fbVertexNormals;
+    public FloatBuffer fbLightColors;
 
 
     public static FloatBuffer makeFloatBuffer(float[] arr) {
@@ -20,7 +23,10 @@ public class MyCube {
     public MyCube(){
         fbVertex = makeFloatBuffer(myCubeVertices);
         fbColors = makeFloatBuffer(myCubeColors);
-        fbNormals = makeFloatBuffer(myCubeVertexNormals);
+        fbNormals = makeFloatBuffer(myCubeNormals);
+        fbVertexNormals = makeFloatBuffer(myCubeVertexNormals);
+        fbLightColors = makeFloatBuffer(myLightColors);
+        fbTexCoords = makeFloatBuffer(myCubeTexCoords);
     }
 
     public float myCubeVertices[]={
@@ -129,6 +135,62 @@ public class MyCube {
             0.0f,1.0f,1.0f,1.0f,
             0.0f,1.0f,1.0f,1.0f,
             0.0f,1.0f,1.0f,1.0f,
+
+            //Ściana 6
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+    };
+
+    public float myLightColors[]={
+            //Ściana 1
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            //Ściana 2
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            //Ściana 3
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            //Ściana 4
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            //Ściana 5
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
+            1.0f,1.0f,1.0f,1.0f,
 
             //Ściana 6
             1.0f,1.0f,1.0f,1.0f,

@@ -44,6 +44,7 @@ public class Window {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
 
         // This is optional. It forces program to use the newest OpenGL - necessary for MAC
 //        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -93,10 +94,12 @@ public class Window {
         // Make the OpenGL context current
         glfwMakeContextCurrent(windowHandle);
 
-        if (isVSync()) {
+        if (vSync==true) {
             // Enable v-sync
             glfwSwapInterval(1);
         }
+        else
+            glfwSwapInterval(0);
 
         // Make the window visible
         glfwShowWindow(windowHandle);

@@ -1,0 +1,6 @@
+﻿Dodane:
+ - w pełni funkcjonalna kamera poruszająca się w przestrzeni 3D, łącznie z ruchami myszy
+ - loader do obiektów z blendera (czasami mogą pojawiać się problemy z eksportowaniem aka model nie wygląda tak jak w blenderze. Raczej za dużo nie da tu się zrobić bez dużych modyfikacji plików .obj i loadera)
+ - podstawowe ładowanie tekstur (trzeba będzie zrobić ładowanie tekstur dla każdego obiektu z osobna co może się wiązać z używaniem i bindowaniem kilku różnych shaderów)
+Małe zmiany:
+ - zakomentowane wszystkie sekcje związane z VAO i VBO (renderowanie najzwyczajniej ich nie potrzebuje, jak wykazały moje testy za pomocą podstawowych koment typu gl**** etc
