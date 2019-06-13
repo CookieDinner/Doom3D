@@ -54,8 +54,7 @@ public class RendererUnit implements FileLoader{
     private ShaderProgram shaderProgram;
     private ShaderProgram shader2;
 
-    private Model gun1 = new Model("handgun1.obj");
-    private Model gun2 = new Model("handgun.obj");
+    private Model gun = new Model("handgun.obj");
     private Lights lights;
 
     private int tex0;
@@ -101,15 +100,15 @@ public class RendererUnit implements FileLoader{
         lights = new Lights(shaderProgram);
 
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_MULTISAMPLE);
+        //glEnable(GL_MULTISAMPLE);
         glDepthFunc(GL_LESS);
-        glShadeModel(GL_SMOOTH);
+        //glShadeModel(GL_SMOOTH);
 
         //Culling the faces
-        glCullFace(GL_FRONT);
-        glEnable(GL_CULL_FACE);
+        //glCullFace(GL_FRONT);
+        //glEnable(GL_CULL_FACE);
 
-        tex0 = readTexture("stone-wall.png");
+        tex0 = readTexture("guntex.png");
 
 
 
@@ -179,7 +178,7 @@ public class RendererUnit implements FileLoader{
         //Rendering the ground
 
         M.identity().translate(0,-3,0).rotate(-3.14f/2,new Vector3f(1.0f,0.0f,0.0f));
-        M.scale(1000.0f,1000.0f,0.1f);
+        M.scale(1000.0f,1000.0f,0.5f);
 
         GL20.glUniformMatrix4fv(shaderProgram.u("P"),false,P.get(BufferUtils.createFloatBuffer(16)));
         GL20.glUniformMatrix4fv(shaderProgram.u("V"),false,V.get(BufferUtils.createFloatBuffer(16)));
@@ -224,6 +223,36 @@ public class RendererUnit implements FileLoader{
         glDisableVertexAttribArray(shaderProgram.a("vertex"));
         glDisableVertexAttribArray(shaderProgram.a("normal"));
         glDisableVertexAttribArray(shaderProgram.a("texCoord0"));
+
+
+
+
+
+        M.identity().translate(5,10,6);
+
+        GL20.glUniformMatrix4fv(shaderProgram.u("P"),false,P.get(BufferUtils.createFloatBuffer(16)));
+        GL20.glUniformMatrix4fv(shaderProgram.u("V"),false,V.get(BufferUtils.createFloatBuffer(16)));
+        GL20.glUniformMatrix4fv(shaderProgram.u("M"),false,M.get(BufferUtils.createFloatBuffer(16)));
+
+        GL20.glUniform1i(shaderProgram.u("textureMap0"),0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,tex0);
+
+
+        glEnableVertexAttribArray(shaderProgram.a("vertex"));
+        GL20.glVertexAttribPointer(shaderProgram.a("vertex"),4,GL_FLOAT,false,0,gun.fbVertex);
+        glEnableVertexAttribArray(shaderProgram.a("normal"));
+        GL20.glVertexAttribPointer(shaderProgram.a("normal"),4,GL_FLOAT,false,0,gun.fbVertexNormals);
+        glEnableVertexAttribArray(shaderProgram.a("texCoord0"));
+        GL20.glVertexAttribPointer(shaderProgram.a("texCoord0"),2,GL_FLOAT,false,0,gun.fbTexCoords);
+
+        glDrawArrays(GL_TRIANGLES, 0, gun.VertexCount);
+
+        glDisableVertexAttribArray(shaderProgram.a("vertex"));
+        glDisableVertexAttribArray(shaderProgram.a("normal"));
+        glDisableVertexAttribArray(shaderProgram.a("texCoord0"));
+
+
 
 
 
