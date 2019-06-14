@@ -10,6 +10,8 @@ import org.lwjgl.opengl.GL20;
 import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 
@@ -82,12 +84,16 @@ public class Lights {
         //Add the passing of the specific light array here
         //And, of course, don't repeat the light indexes
     }
-    public void drawLights(Matrix4f P, Matrix4f V) {
+    public void drawLights(Matrix4f P, Matrix4f V, int tex) {
         createLights();
 
         for (int i = 0; i < 4; i++) {
             M.identity().translate(lights[i][0][0], lights[i][0][1], lights[i][0][2]);
             M.scale(lights[i][3][0], lights[i][3][0], lights[i][3][0]);
+
+            GL20.glUniform1i(shaderProgram.u("textureMap0"),0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D,tex);
 
             GL20.glUniformMatrix4fv(shaderProgram.u("P"), false, P.get(BufferUtils.createFloatBuffer(16)));
             GL20.glUniformMatrix4fv(shaderProgram.u("V"), false, V.get(BufferUtils.createFloatBuffer(16)));

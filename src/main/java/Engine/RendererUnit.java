@@ -58,6 +58,10 @@ public class RendererUnit implements FileLoader{
     private Lights lights;
 
     private int tex0;
+    private int tex1;
+    private int tex2;
+    private int tex3;
+
 
     public RendererUnit() {
     }
@@ -109,6 +113,9 @@ public class RendererUnit implements FileLoader{
         //glEnable(GL_CULL_FACE);
 
         tex0 = readTexture("guntex.png");
+        tex1 = readTexture("stone-wall.png");
+        tex2 = readTexture("bricks.png");
+        tex3 = readTexture("light.png");
 
 
 
@@ -171,7 +178,7 @@ public class RendererUnit implements FileLoader{
         //shaderProgram.bind();
 
         //Drawing the lights and initializing them in the shader at the same time
-        lights.drawLights(P, V);
+        lights.drawLights(P, V, tex3);
         //glBindVertexArray(vaoId);
 
 
@@ -183,6 +190,10 @@ public class RendererUnit implements FileLoader{
         GL20.glUniformMatrix4fv(shaderProgram.u("P"),false,P.get(BufferUtils.createFloatBuffer(16)));
         GL20.glUniformMatrix4fv(shaderProgram.u("V"),false,V.get(BufferUtils.createFloatBuffer(16)));
         GL20.glUniformMatrix4fv(shaderProgram.u("M"),false,M.get(BufferUtils.createFloatBuffer(16)));
+
+        GL20.glUniform1i(shaderProgram.u("textureMap0"),0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,tex2);
 
         glEnableVertexAttribArray(shaderProgram.a("vertex"));
         GL20.glVertexAttribPointer(shaderProgram.a("vertex"),4,GL_FLOAT,false,0,cube.fbVertex);
@@ -197,6 +208,8 @@ public class RendererUnit implements FileLoader{
         glDisableVertexAttribArray(shaderProgram.a("normal"));
         glDisableVertexAttribArray(shaderProgram.a("texCoord0"));
 
+
+
         // Rendering the colored cube
         //shader2.unbind();
         //shaderProgram.bind();
@@ -208,7 +221,7 @@ public class RendererUnit implements FileLoader{
 
         GL20.glUniform1i(shaderProgram.u("textureMap0"),0);
         glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D,tex0);
+        glBindTexture(GL_TEXTURE_2D,tex1);
 
 
         glEnableVertexAttribArray(shaderProgram.a("vertex"));
@@ -223,6 +236,8 @@ public class RendererUnit implements FileLoader{
         glDisableVertexAttribArray(shaderProgram.a("vertex"));
         glDisableVertexAttribArray(shaderProgram.a("normal"));
         glDisableVertexAttribArray(shaderProgram.a("texCoord0"));
+
+        glDisable(GL_TEXTURE_2D);
 
 
 
@@ -253,7 +268,7 @@ public class RendererUnit implements FileLoader{
         glDisableVertexAttribArray(shaderProgram.a("texCoord0"));
 
 
-
+        glDisable(GL_TEXTURE_2D);
 
 
 
