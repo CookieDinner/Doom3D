@@ -30,6 +30,8 @@ public class Model implements FileLoader {
     public FloatBuffer fbTexCoords;
     public int VertexCount;
 
+    boolean tex_flag = false;
+
     String cur[];
 
     public Model(String fileName){
@@ -97,8 +99,10 @@ public class Model implements FileLoader {
     private void help(String [] cur){
         face_vertices.add(Integer.parseInt(cur[0]));
         face_normals.add(Integer.parseInt(cur[2]));
-        if (!cur[1].equals(""))
+        if (!cur[1].equals("")) {
             face_texcoords.add(Integer.parseInt(cur[1]));
+            tex_flag = true;
+        }
     }
     private void finish(){
         ready_vertices = new float[4*VertexCount];
@@ -112,9 +116,11 @@ public class Model implements FileLoader {
             ready_vertices[(4*i)+2] = cur_vert.z;
             ready_vertices[(4*i)+3] = 1.0f;
 
-            Vector2f cur_tex = texcoords.get(face_texcoords.get(i) - 1);
-            ready_texcoords[(2*i)] = cur_tex.x;
-            ready_texcoords[(2*i)+1] = 1 - cur_tex.y;
+            if (tex_flag) {
+                Vector2f cur_tex = texcoords.get(face_texcoords.get(i) - 1);
+                ready_texcoords[(2 * i)] = cur_tex.x;
+                ready_texcoords[(2 * i) + 1] = 1 - cur_tex.y;
+            }
 
             Vector3f cur_norm = normals.get(face_normals.get(i) - 1);
             ready_normals[(4*i)] = cur_norm.x;
