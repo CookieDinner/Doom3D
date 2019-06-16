@@ -2,10 +2,7 @@ package Engine;
 
 import lombok.Setter;
 import org.joml.Vector3f;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
-
-import java.nio.DoubleBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -30,7 +27,7 @@ public class Doom3D implements GameLogicInterface {
 
     private boolean first = true;
 
-    Vector3f camPos = new Vector3f(0.0f, 0.0f, 6.0f);
+    Vector3f camPos = new Vector3f(0.0f, 10.0f, 20.0f);
     Vector3f camFront = new Vector3f(1.0f, 0.0f, 0.0f);
     Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
     Vector3f camRight = new Vector3f().set(camFront).cross(camUp).normalize();

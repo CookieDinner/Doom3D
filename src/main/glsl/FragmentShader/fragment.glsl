@@ -1,6 +1,6 @@
 #version 460
 
-#define lightsCount 4
+#define lightsCount 3
 struct Light {
 	vec4 pos;
 	vec4 color;
@@ -12,8 +12,11 @@ in Light o_lights[lightsCount];
 in vec4 n;
 in vec4 v;
 in vec2 iTexCoord0;
+in vec2 iTexCoord1;
 
 uniform sampler2D textureMap0;
+uniform sampler2D textureMap1;
+uniform sampler2D textureMap2;
 
 out vec4 pixelColor; //Zmienna wyjsciowa fragment shadera. Zapisuje sie do niej ostateczny (prawie) kolor piksela
 
@@ -32,18 +35,18 @@ void main(void) {
 	vec4 mn=normalize(n);
 	vec4 mv=normalize(v);
 	//vec4 ld=vec4(1,1,1,1); //Kolor swiatla
-	vec4 ks=vec4(1,1,1,1);
+	vec4 ks=2*texture(textureMap1,iTexCoord0);//vec4(1,1,1,1);
 	vec4 ls=vec4(1,1,1,1);
 	//vec4 kd=ic; //Kolor obiektu
 	//if (ic == 0)
-    	vec4 kd=texture(textureMap0,iTexCoord0);
+    	vec4 kd=(9*(texture(textureMap0,iTexCoord0))+1.2*(texture(textureMap2,iTexCoord1)))/11;
 	//else
 		//vec4 kd=ic;
 
 	for (int i = 0; i < lightsCount; i++){
 		ml[i]=normalize(o_lights[i].pos);
 		mr[i]=reflect(-ml[i],mn);
-		nl[i]=clamp(dot(mn,ml[i]),0.05f,1.0f);
+		nl[i]=clamp(dot(mn,ml[i]),0.4f,1.0f);
 		rv[i]=pow(clamp(dot(mr[i],mv),0,1),o_lights[i].phconst);
 	}
 

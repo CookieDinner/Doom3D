@@ -1,6 +1,6 @@
 #version 460
 
-#define lightsCount 4
+#define lightsCount 3
 struct Light {
     vec4 pos;
     vec4 color;
@@ -26,6 +26,7 @@ out Light o_lights[lightsCount];
 out vec4 n;
 out vec4 v;
 out vec2 iTexCoord0;
+out vec2 iTexCoord1;
 
 void main(void) {
 
@@ -50,6 +51,7 @@ void main(void) {
     //l2=normalize(V*(lp[1]-M*vertex));
     iTexCoord0=texCoord0;
 
+
     for(int i=0; i<lightsCount; i++){
         o_lights[i].pos=normalize(V*(i_lights[i].pos-M*vertex));
         o_lights[i].color=i_lights[i].color;
@@ -73,6 +75,7 @@ void main(void) {
     //ic=vec4(ld.rgb*kd.rgb*nl+ks.rgb*ls.rgb*rv,kd.a); //dodana część Phonga
     ic=color;
     gl_Position=P*V*M*vertex;
+    iTexCoord1=(n.xy+1)/2;
 
 
 }

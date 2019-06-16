@@ -1,45 +1,89 @@
 package Entities;
 
 import Engine.FileLoader;
+import Engine.ShaderProgram;
+import de.matthiasmann.twl.utils.PNGDecoder;
+import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.BufferUtils;
+import org.lwjgl.opengl.GL20;
+import org.lwjgl.opengl.GL40;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
+import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
+
 public class Model implements FileLoader {
-    private List<Vector3f> vertices = new ArrayList<Vector3f>();
-    private List<Vector3f> normals = new ArrayList<Vector3f>();
-    private List<Vector2f> texcoords = new ArrayList<Vector2f>();
+    private List<Vector3f> vertices = new ArrayList<>();
+    private List<Vector3f> normals = new ArrayList<>();
+    private List<Vector2f> texcoords = new ArrayList<>();
 
-    private List<Integer> face_vertices = new ArrayList<Integer>();
-    private List<Integer> face_texcoords = new ArrayList<Integer>();
-    private List<Integer> face_normals = new ArrayList<Integer>();
+    private List<Integer> face_vertices = new ArrayList<>();
+    private List<Integer> face_texcoords = new ArrayList<>();
+    private List<Integer> face_normals = new ArrayList<>();
 
-    public float[] ready_vertices;
-    public float[] ready_texcoords;
-    public float[] ready_normals;
+    private FloatBuffer fbVertex;
+    private FloatBuffer fbVertexNormals;
+    private FloatBuffer fbTexCoords;
+    private int VertexCount;
 
-    public FloatBuffer fbVertex;
-    public FloatBuffer fbVertexNormals;
-    public FloatBuffer fbTexCoords;
-    public int VertexCount;
+    private ShaderProgram shaderProgram;
 
-    boolean tex_flag = false;
+    private int tex0;
+    private int tex1;
+    private int tex2;
+    private boolean tex_flag = false;
 
-    String cur[];
 
-    public Model(String fileName){
+    private String cur[];
+
+    public Model(ShaderProgram shader, String fileName, String texName, String diffusionMap, String environmentalMap){
         fileName = generateAbsolutePath("/src/main/models/",fileName);
         load(fileName);
+        shaderProgram = shader;
+        tex0 = readTexture(texName);
+        tex1 = readTexture(diffusionMap);
+        tex2 = readTexture(environmentalMap);
     }
 
-    public void load(String name){
+    private int readTexture(String filename) {
+        int tex = 0;
+
+        try {
+            FileInputStream in = new FileInputStream(generateAbsolutePath("/src/main/models/",filename));
+            PNGDecoder dec = new PNGDecoder(in);
+            ByteBuffer buf = ByteBuffer.allocateDirect(4*dec.getWidth()*dec.getHeight());
+            dec.decode(buf, dec.getWidth()*4, PNGDecoder.Format.RGBA);
+            buf.flip();
+            tex = glGenTextures();
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D,tex);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, dec.getWidth(), dec.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+            GL40.glGenerateMipmap(GL_TEXTURE_2D);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -0.5f);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            in.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return tex;
+    }
+
+    private void load(String name){
 
         try{
             vertices.clear();
@@ -92,9 +136,7 @@ public class Model implements FileLoader {
         }catch(Exception e){
             e.printStackTrace();
         }
-        //fbVertex = makeFloatBuffer(ready_vertices);
-        //fbVertexNormals = makeFloatBuffer(ready_normals);
-        //fbTexCoords = makeFloatBuffer(ready_texcoords);
+
     }
     private void help(String [] cur){
         face_vertices.add(Integer.parseInt(cur[0]));
@@ -105,9 +147,9 @@ public class Model implements FileLoader {
         }
     }
     private void finish(){
-        ready_vertices = new float[4*VertexCount];
-        ready_texcoords = new float[2*VertexCount];
-        ready_normals = new float[4*VertexCount];
+        float [] ready_vertices = new float[4*VertexCount];
+        float [] ready_texcoords = new float[2*VertexCount];
+        float [] ready_normals = new float[4*VertexCount];
 
         for (int i = 0; i < VertexCount; i++){
             Vector3f cur_vert = vertices.get(face_vertices.get(i) - 1);
@@ -134,7 +176,40 @@ public class Model implements FileLoader {
 
     }
 
-    public static FloatBuffer makeFloatBuffer(float[] arr) {
+    public void draw (Matrix4f M, Matrix4f V, Matrix4f P, int texNumber){
+
+        GL20.glUniform1i(shaderProgram.u("textureMap0"),texNumber);
+        glActiveTexture(GL_TEXTURE0+texNumber);
+        glBindTexture(GL_TEXTURE_2D,tex0);
+
+        GL20.glUniform1i(shaderProgram.u("textureMap1"),texNumber+1);
+        glActiveTexture(GL_TEXTURE0+texNumber+1);
+        glBindTexture(GL_TEXTURE_2D,tex1);
+
+        GL20.glUniform1i(shaderProgram.u("textureMap2"),texNumber+2);
+        glActiveTexture(GL_TEXTURE0+texNumber+2);
+        glBindTexture(GL_TEXTURE_2D,tex2);
+
+        GL20.glUniformMatrix4fv(shaderProgram.u("P"),false,P.get(BufferUtils.createFloatBuffer(16)));
+        GL20.glUniformMatrix4fv(shaderProgram.u("V"),false,V.get(BufferUtils.createFloatBuffer(16)));
+        GL20.glUniformMatrix4fv(shaderProgram.u("M"),false,M.get(BufferUtils.createFloatBuffer(16)));
+
+        glEnableVertexAttribArray(shaderProgram.a("vertex"));
+        GL20.glVertexAttribPointer(shaderProgram.a("vertex"),4,GL_FLOAT,false,0,fbVertex);
+        glEnableVertexAttribArray(shaderProgram.a("normal"));
+        GL20.glVertexAttribPointer(shaderProgram.a("normal"),4,GL_FLOAT,false,0,fbVertexNormals);
+        glEnableVertexAttribArray(shaderProgram.a("texCoord0"));
+        GL20.glVertexAttribPointer(shaderProgram.a("texCoord0"),2,GL_FLOAT,false,0,fbTexCoords);
+
+        glDrawArrays(GL_TRIANGLES, 0, VertexCount);
+
+        glDisableVertexAttribArray(shaderProgram.a("vertex"));
+        glDisableVertexAttribArray(shaderProgram.a("normal"));
+        glDisableVertexAttribArray(shaderProgram.a("texCoord0"));
+
+    }
+
+    private static FloatBuffer makeFloatBuffer(float[] arr) {
         FloatBuffer fb = BufferUtils.createFloatBuffer(4*arr.length);
         fb.put(arr).flip();
         return fb;
@@ -143,3 +218,12 @@ public class Model implements FileLoader {
 
 
 }
+
+
+
+
+
+
+
+
+
