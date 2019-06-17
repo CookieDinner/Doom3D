@@ -164,7 +164,7 @@ public class RendererUnit implements FileLoader{
         ground.draw(M,V,P, 15); //1
 
 
-        M.identity().rotate(3.14f,new Vector3f(0.0f,0.0f,1.0f)).translate(0.0f,200.0f,0.0f).scale(15000.0f,15000.0f,15000.0f);
+        M.identity().rotate(3.14f,new Vector3f(0.0f,0.0f,1.0f)).translate(0.0f,-6000.0f,0.0f).scale(15000.0f,15000.0f,15000.0f);
         skybox.draw(M,V,P, 18); //1
 
 
