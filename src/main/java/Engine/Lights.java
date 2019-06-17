@@ -3,6 +3,7 @@ package Engine;
 import Entities.Model;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL20;
 
 
@@ -40,10 +41,10 @@ public class Lights {
 
     public Lights(ShaderProgram shaderProgram){
         this.shaderProgram = shaderProgram;
-        light = new Model(shaderProgram, "lamp.obj","lamp.png","lampdiffuse.png","sky.png");
+        light = new Model(shaderProgram, shaderProgram,"lamp.obj","lamp.png","lampdiffuse.png","sky.png");
     }
     public void createLights(){
-
+        shaderProgram.bind();
         //Passing the lights' uniform variables to the vertex shader
         //Scene lighting (sun)
         GL20.glUniform4fv(shaderProgram.u("i_lights[0].pos"), lights[0][0]);

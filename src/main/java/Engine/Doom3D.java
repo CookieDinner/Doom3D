@@ -3,6 +3,7 @@ package Engine;
 import lombok.Setter;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
+import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -19,7 +20,8 @@ public class Doom3D implements GameLogicInterface {
 
     private float angle_y=0; //Aktualny kąt obrotu obiektu
 
-    private float movementSpeed = 20.0f;
+    private float baseMovementSpeed = 20.0f;
+    private float movementSpeed = baseMovementSpeed;
 
     private double lastMouseX, lastMouseY;
     private double offsetX, offsetY;
@@ -31,6 +33,8 @@ public class Doom3D implements GameLogicInterface {
     Vector3f camFront = new Vector3f(1.0f, 0.0f, 0.0f);
     Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
     Vector3f camRight = new Vector3f().set(camFront).cross(camUp).normalize();
+    private int mouseButton = 99;
+    private int mouseAction = 99;
 
 
     private float xang, yang;
@@ -50,7 +54,6 @@ public class Doom3D implements GameLogicInterface {
         glfwSetCursorPosCallback(window.getWindowHandle(), new GLFWCursorPosCallback(){
             @Override
             public void invoke(long win, double mouseX, double mouseY) {
-
                 if (first){
                     lastMouseX = mouseX;
                     lastMouseY = mouseY;
@@ -81,10 +84,22 @@ public class Doom3D implements GameLogicInterface {
 
             }
         });
+        glfwSetMouseButtonCallback(window.getWindowHandle(), new GLFWMouseButtonCallback() {
+            @Override
+            public void invoke(long window, int button, int action, int mods) {
+                if(button == GLFW_MOUSE_BUTTON_LEFT && action == 1) {
+                    mouseButton = GLFW_MOUSE_BUTTON_LEFT;
+                }
+                if(button == GLFW_MOUSE_BUTTON_LEFT && action == 0) {
+                    mouseButton = 99;
+                }
+            }
+        });
     }
 
     @Override
     public void input(Window window) {
+        movementSpeed = baseMovementSpeed;
         if ( window.isKeyPressed(GLFW_KEY_ESCAPE)) window.closeWindow();
 
         if (window.isKeyPressed(GLFW_KEY_LEFT)) speed_x=-PI/2;
@@ -94,12 +109,14 @@ public class Doom3D implements GameLogicInterface {
         if (window.isKeyPressed(GLFW_KEY_UP)) speed_y=PI/2;
         else if (window.isKeyPressed(GLFW_KEY_DOWN)) speed_y=-PI/2;
         else speed_y=0;
-
         //Because of the camFront vector getting close to 0 while looking 90 degrees up or down it's hard to get any kind of forward/backwards movement
         //Therefore we are recalculating the camRight vector on every frame, then taking the cross product of camRight and camUp vector
         //and using that as the direction vector instead
 
         camRight.set(camFront).cross(camUp).normalize();
+        if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT))
+            movementSpeed+= 60.0f;
+
             //W
         if (window.isKeyPressed(GLFW_KEY_W) && !window.isKeyPressed(GLFW_KEY_D) && !window.isKeyPressed(GLFW_KEY_A) && !window.isKeyPressed(GLFW_KEY_S)) {
             camPos.x -= new Vector3f().set(camRight).cross(camUp).normalize().x * (float) glfwGetTime() * movementSpeed;
@@ -159,7 +176,7 @@ public class Doom3D implements GameLogicInterface {
         angle_y+=speed_y*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
 
         glfwSetTime(0); //Zeruj timer
-        rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp);
+        rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp, camRight, mouseButton);
     }
 
     @Override

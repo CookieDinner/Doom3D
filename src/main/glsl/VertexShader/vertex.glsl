@@ -27,6 +27,7 @@ out vec4 n;
 out vec4 v;
 out vec2 iTexCoord0;
 out vec2 iTexCoord1;
+out float visibility;
 
 void main(void) {
 
@@ -49,6 +50,7 @@ void main(void) {
 
     //l=normalize(V*(lp[0]-M*vertex)); //Wektor "do œwiat³a" w przestrzeni oka
     //l2=normalize(V*(lp[1]-M*vertex));
+    vec4 relcam = V * M * vertex;
     iTexCoord0=texCoord0;
 
 
@@ -71,6 +73,8 @@ void main(void) {
     float rv=pow(clamp(dot(r,v),0,1),10); //25 to alfa*/
 
 
+    float distance = length (relcam);
+    visibility = clamp(exp(-pow((distance*0.0007f),1.1f)),0.0f,1.0f);
 
     //ic=vec4(ld.rgb*kd.rgb*nl+ks.rgb*ls.rgb*rv,kd.a); //dodana część Phonga
     ic=color;

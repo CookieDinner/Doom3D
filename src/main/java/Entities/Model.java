@@ -6,6 +6,7 @@ import de.matthiasmann.twl.utils.PNGDecoder;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL40;
@@ -37,6 +38,7 @@ public class Model implements FileLoader {
     private int VertexCount;
 
     private ShaderProgram shaderProgram;
+    private ShaderProgram initialshader;
 
     private int tex0;
     private int tex1;
@@ -46,10 +48,11 @@ public class Model implements FileLoader {
 
     private String cur[];
 
-    public Model(ShaderProgram shader, String fileName, String texName, String diffusionMap, String environmentalMap){
+    public Model(ShaderProgram shader,ShaderProgram initshader, String fileName, String texName, String diffusionMap, String environmentalMap){
         fileName = generateAbsolutePath("/src/main/models/",fileName);
         load(fileName);
         shaderProgram = shader;
+        initialshader = initshader;
         tex0 = readTexture(texName);
         tex1 = readTexture(diffusionMap);
         tex2 = readTexture(environmentalMap);
@@ -177,6 +180,8 @@ public class Model implements FileLoader {
     }
 
     public void draw (Matrix4f M, Matrix4f V, Matrix4f P, int texNumber){
+
+        shaderProgram.bind();
 
         GL20.glUniform1i(shaderProgram.u("textureMap0"),texNumber);
         glActiveTexture(GL_TEXTURE0+texNumber);
