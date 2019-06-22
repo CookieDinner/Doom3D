@@ -37,10 +37,6 @@ public class Doom3D implements GameLogicInterface {
     private int mouseAction = 99;
 
 
-    private float xang, yang;
-
-
-
     private final RendererUnit rendererUnit;
 
     public Doom3D() {

@@ -52,8 +52,8 @@ public class RendererUnit implements FileLoader{
     public void initBuffer() throws Exception {
 
         shader1 = new ShaderProgram();
-        shader1.createVertexShader("vertex.glsl");
-        shader1.createFragmentShader("fragment.glsl");
+        shader1.createVertexShader("vertex_simp.glsl");
+        shader1.createFragmentShader("fragment_simp.glsl");
 
         shader2 = new ShaderProgram();
         shader2.createVertexShader("vertex_simp.glsl");
@@ -178,11 +178,6 @@ public class RendererUnit implements FileLoader{
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
 
         hudgun.draw(M,V,P,12);
-
-
-
-
-
 
 
         //glBindVertexArray(0);

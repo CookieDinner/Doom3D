@@ -63,24 +63,6 @@ public class Window {
             this.setResized(true);
         });
 
-        //Callback on keyboard
-//        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
-//            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-//                glfwSetWindowShouldClose(window, true);
-//            if (action==GLFW_PRESS) {
-//                if (key==GLFW_KEY_LEFT) speed_x=-PI/2;
-//                if (key==GLFW_KEY_RIGHT) speed_x=PI/2;
-//                if (key==GLFW_KEY_UP) speed_y=PI/2;
-//                if (key==GLFW_KEY_DOWN) speed_y=-PI/2;
-//            }
-//            if (action==GLFW_RELEASE) {
-//                if (key==GLFW_KEY_LEFT) speed_x=0;
-//                if (key==GLFW_KEY_RIGHT) speed_x=0;
-//                if (key==GLFW_KEY_UP) speed_y=0;
-//                if (key==GLFW_KEY_DOWN) speed_y=0;
-//            }
-//        });
-
 
         // Get the resolution of the primary monitor
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
