@@ -6,7 +6,6 @@ import de.matthiasmann.twl.utils.PNGDecoder;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL40;
@@ -18,7 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL14.GL_TEXTURE_LOD_BIAS;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
@@ -211,7 +211,6 @@ public class Model implements FileLoader {
         glDisableVertexAttribArray(shaderProgram.a("vertex"));
         glDisableVertexAttribArray(shaderProgram.a("normal"));
         glDisableVertexAttribArray(shaderProgram.a("texCoord0"));
-
     }
 
     private static FloatBuffer makeFloatBuffer(float[] arr) {

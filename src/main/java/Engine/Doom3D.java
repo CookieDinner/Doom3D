@@ -1,6 +1,8 @@
 package Engine;
 
+import Entities.Player;
 import lombok.Setter;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
@@ -20,12 +22,14 @@ public class Doom3D implements GameLogicInterface {
 
     private float angle_y=0; //Aktualny kąt obrotu obiektu
 
-    private float baseMovementSpeed = 20.0f;
+    private float baseMovementSpeed = 40.0f;
     private float movementSpeed = baseMovementSpeed;
 
     private double lastMouseX, lastMouseY;
     private double offsetX, offsetY;
     private double yaw, pitch;
+
+    private Player player;
 
     private boolean first = true;
 
@@ -38,9 +42,12 @@ public class Doom3D implements GameLogicInterface {
 
 
     private final RendererUnit rendererUnit;
+    private final CollisionUnit collisionUnit;
 
     public Doom3D() {
-        rendererUnit = new RendererUnit();
+        collisionUnit = new CollisionUnit();
+        rendererUnit = new RendererUnit(collisionUnit);
+        player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,34);
     }
 
     @Override
@@ -95,6 +102,10 @@ public class Doom3D implements GameLogicInterface {
 
     @Override
     public void input(Window window) {
+//        System.out.println("Przed     "+camPos.x + "      " + camPos.z);
+        Vector3f camPosBeforeChange = new Vector3f(camPos.x, camPos.y, camPos.z);
+
+
         movementSpeed = baseMovementSpeed;
         if ( window.isKeyPressed(GLFW_KEY_ESCAPE)) window.closeWindow();
 
@@ -111,7 +122,7 @@ public class Doom3D implements GameLogicInterface {
 
         camRight.set(camFront).cross(camUp).normalize();
         if (window.isKeyPressed(GLFW_KEY_LEFT_SHIFT))
-            movementSpeed+= 60.0f;
+            movementSpeed+= 50.0f;
 
             //W
         if (window.isKeyPressed(GLFW_KEY_W) && !window.isKeyPressed(GLFW_KEY_D) && !window.isKeyPressed(GLFW_KEY_A) && !window.isKeyPressed(GLFW_KEY_S)) {
@@ -157,6 +168,40 @@ public class Doom3D implements GameLogicInterface {
             //DOWN
         if (window.isKeyPressed(GLFW_KEY_LEFT_CONTROL) && !window.isKeyPressed(GLFW_KEY_SPACE))
             camPos.sub(new Vector3f().set(camUp).normalize().mul((float)glfwGetTime()*movementSpeed));
+
+
+
+//        System.out.println(collisionUnit.getCollisionEntitiesList().size());
+
+        // Bardzo WAZNA LINIJKA !!! Sprawdza czy którys z modeli nie przeszkadza playerowi.
+
+        Vector2f whichFunctionShouldBeUsed;
+
+        if ((whichFunctionShouldBeUsed = collisionUnit.checkIfCollisionExistWithAnyEntity(player)) != null) {
+            camPos = camPosBeforeChange;
+
+            if (whichFunctionShouldBeUsed.x==0)
+                camPos.x = camPos.x-1;
+            else camPos.x = camPos.x+1;
+
+//            camPos.x = (float) Math.floor(camPos.x);
+//            else camPos.x = (float) Math.ceil(camPos.x);
+
+            if (whichFunctionShouldBeUsed.y==0)// y because it's 2nd artibute
+                camPos.z = camPos.z-1;
+            else camPos.z = camPos.z+1;
+//
+////
+//                camPos.z = (float) Math.floor(camPos.z);
+//            else camPos.z = (float) Math.ceil(camPos.z);
+        }
+
+//                System.out.println("----------PO     "+camPos.x + "      " + camPos.z);
+
+
+        player.setPosX(camPos.x);
+        player.setPosZ(camPos.z);
+//        System.out.println(camPosBeforeChange);
 
     }
 

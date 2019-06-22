@@ -1,8 +1,10 @@
 package Engine;
 
+import Entities.LiveEntity;
 import Entities.Model;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -39,14 +41,17 @@ public class RendererUnit implements FileLoader{
     private Model cube;
     private Model ground;
     private Model skybox;
-    private Model dragon;
+//    private Model dragon;
     private Model hudgun;
+
+    private LiveEntity dragon;
+    private CollisionUnit collisionUnit;
 
     private Lights lights;
 
 
-
-    public RendererUnit() {
+    public RendererUnit(CollisionUnit collision) {
+        collisionUnit = collision;
     }
 
     public void initBuffer() throws Exception {
@@ -77,8 +82,10 @@ public class RendererUnit implements FileLoader{
         cube = new Model(shader1, shader2,"cube.obj", "metal.png", "metaldiffuse.png","sky.png");
         skybox = new Model(shader2, shader2,"skybox.obj", "skybox.png","black.png","black.png");
         ground = new Model(shader1, shader2,"ground.obj", "bricks.png","bricksdiffuse.png","black.png");
-        dragon = new Model(shader1, shader2,"dragon.obj", "dragon.png","dragondiffuse.png","black.png");
+        dragon =new LiveEntity(100,100,new Model(shader1, shader2,"dragon.obj", "dragon.png","dragondiffuse.png","black.png"),
+                50,50,50,50,1000,100);
 
+        collisionUnit.addToList(dragon);
 
 
         //REDUNTANT
@@ -121,7 +128,7 @@ public class RendererUnit implements FileLoader{
 
     public void render(Window window, float angle_x, float angle_y, Vector3f camPos, Vector3f camFront, Vector3f camUp, Vector3f camRight, int mouseButton){
         clearBuffers();
-        glClearColor(0.1f, 0.2f, 0.5f, 1.0f);
+        glClearColor(0.6f, 0.2f, 0.5f, 1.0f);
         glfwSetInputMode(window.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         if (window.isResized()) {
@@ -132,14 +139,19 @@ public class RendererUnit implements FileLoader{
         V.identity().lookAt(camPos, new Vector3f().set(camPos).add(camFront), camUp);
         P.identity().perspective(50.0f*(float)Math.PI/180.0f, window.getScreenRatio(),0.01f,500000.0f);
 
+
         //Binding the specific shader before drawing an object that uses it
         //Drawing the lights and initializing them in the shader at the same time
         lights.drawLights(P, V);
         //glBindVertexArray(vaoId);
 
 
-        M.identity().translate(300.0f,-9.50f,0.0f).rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f)).scale(20.0f,20.0f,20.0f);
-        dragon.draw(M,V,P,3);
+        M.identity().translate(dragon.getPosX(),-9.50f,dragon.getPosZ()).rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f)).scale(20.0f,20.0f,20.0f);
+        dragon.getModel().draw(M,V,P,3);
+
+        Matrix4f lol = new Matrix4f();
+        Vector4f vector4f = new Vector4f(1,1,1,1).mul(lol.identity().translate(10,0,2));
+        System.out.println(vector4f);
 
         M.identity().translate(5,10,6).rotate(angle_x,new Vector3f(0f,1.0f,0f)).rotate(angle_y,new Vector3f(1.0f,0f,0f));
         Matrix4f Mtemp = M;
