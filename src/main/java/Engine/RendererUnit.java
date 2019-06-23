@@ -1,8 +1,6 @@
 package Engine;
 
-import Entities.Enemy;
-import Entities.LiveEntity;
-import Entities.Model;
+import Entities.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -46,16 +44,21 @@ public class RendererUnit implements FileLoader{
 //    private Model dragon;
     private Model hudgun;
     private Model enemy;
+    private Model heart;
 
+//    private Entity cubic;
     private LiveEntity dragon;
     private ArrayList<Enemy> enemiesList = new ArrayList<>();
+    private ArrayList<Entity> playersHealth = new ArrayList<>();
+    private Player player;
 
     private CollisionUnit collisionUnit;
     private Lights lights;
 
 
-    public RendererUnit(CollisionUnit collision) {
+    public RendererUnit(CollisionUnit collision, Player player) {
         collisionUnit = collision;
+        this.player = player;
     }
 
     public void initBuffer() throws Exception {
@@ -87,17 +90,25 @@ public class RendererUnit implements FileLoader{
         skybox = new Model(shader2, shader2,"skybox.obj", "skybox.png","black.png","black.png");
         ground = new Model(shader1, shader2,"ground.obj", "bricks.png","bricksdiffuse.png","black.png");
         enemy = new Model(shader1, shader2,"alien.obj", "alien_tex.png", "alien_diffuse.png","black.png");
+        heart = new Model(shader1, shader2, "heart.obj", "heart.png", "black.png", "black.png");
+
 
         dragon =new LiveEntity(300,300, new Model(shader1, shader2,"dragon.obj",
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
-
         collisionUnit.addToList(dragon);
+
         enemiesList.add(new Enemy(-50,-50,enemy,100,20));
         enemiesList.add(new Enemy(50,50,enemy,100,20));
 
         for(Enemy i: enemiesList){
             collisionUnit.addToList(i);
         }
+
+        playersHealth.add(new Entity(-7.75f,-10,heart));
+        playersHealth.add(new Entity(-6.75f,-10,heart));
+        playersHealth.add(new Entity(-5.75f,-10,heart));
+        playersHealth.add(new Entity(-4.75f,-10,heart));
+
 
 
         //REDUNTANT
@@ -161,6 +172,10 @@ public class RendererUnit implements FileLoader{
 
         M.identity().translate(dragon.getPosX(),-9.50f,dragon.getPosZ()).rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f)).scale(20.0f,20.0f,20.0f);
         dragon.getModel().draw(M,V,P,texNumber);
+        dragon.updateCurrentVectors(new Matrix4f().identity()
+                .translate(dragon.getPosX(),-9.50f,dragon.getPosZ())
+//                .rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f))
+                .scale(20.0f,20.0f,20.0f));
         texNumber+=3;
 
 
@@ -184,45 +199,37 @@ public class RendererUnit implements FileLoader{
         texNumber+=3;
 
 
+        // UWAGA !!! camPos.x == player.x tak samo z "Z"
 
         for(Enemy i: enemiesList){
+            float oldX = i.getPosX() , oldZ = i.getPosZ();
+            i.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
+            collisionUnit.abandonMovingChangesWhenDetectedCollision(i,oldX,oldZ);
 
-            //        Matrix4f lol = new Matrix4f();
-//        Vector4f vector4f = new Vector4f(1,1,1,1).mul(lol.identity().translate(10,0,2));
-//        System.out.println(vector4f);
-
-            System.out.println("++++++++PRZED EDYCJA");
-            System.out.println(i.getDefaultMinCollisionBox());
-            System.out.println(i.getDefaultMaxCollisionBox());
-            i.updateCurrentVectors((new Matrix4f().identity().scale(1.3f)).translate(i.getPosX(),0.0f,i.getPosZ()));
-            System.out.println("++++++++PO EDYCJI");
-            i.debugVectors();
-
-            System.out.println("POZYCJA PLAYERA ----->>>>>"+ camPos);
-
-
-
-            //camPos.x == player.x tak samo z "Z"
-//            i.moveInPlayerDirection(camPos.x,camPos.z,0.3f);
-
-
-
-//            for (Vector4f vec: i.getModel().getCollisionBox()){
-//                System.out.println(vec);
-//            }
-//            System.out.println("-------------------------");
-
-
+            //todo zrobic umieranie jednostek
+//            if (i.checkIfEntityDied())i.move(new Random().nextInt(500),new Random().nextInt(500));
 
 
             M.identity().translate(i.getPosX(),1.0f,i.getPosZ())
-                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
+                    .rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f))
                     .scale(1.3f,1.3f,1.3f);
-
-
             i.getModel().draw(M,V,P, texNumber); //2
-        }
 
+
+            //            System.out.println("++++++++PRZED EDYCJA");
+//            System.out.println(i.getDefaultMinCollisionBox());
+//            System.out.println(i.getDefaultMaxCollisionBox());
+            i.updateCurrentVectors((new Matrix4f().identity()
+                    .translate(i.getPosX(),0.0f,i.getPosZ())
+//                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
+                    .scale(1.3f) //todo poprawic collision boxy
+            ));
+//
+//            System.out.println("++++++++PO EDYCJI");
+//            i.debugVectors();
+//            System.out.println("POZYCJA PLAYERA ----->>>>>"+ camPos);
+
+        }
 
 
 
@@ -248,8 +255,20 @@ public class RendererUnit implements FileLoader{
         glClear(GL_DEPTH_BUFFER_BIT);
         if(mouseButton == GLFW_MOUSE_BUTTON_LEFT)
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
-
         hudgun.draw(M,V,P,texNumber);
+        texNumber+=3;
+
+
+
+        M.identity();
+        for (int i=0;i< player.getHealth()/25;i++){
+            Entity e = playersHealth.get(i);
+            V.identity().translate(e.getPosX(),-4.5f,e.getPosZ());
+            V.scale(0.25f,0.25f,0.25f);
+            e.getModel().draw(M,V,P,texNumber);
+        }
+
+
 
 
         //glBindVertexArray(0);

@@ -33,9 +33,10 @@ public class CollisionUnit {
 
             if (!entity.equals(entity_to_check)){
                 if(Utils.checkCollisionWithObject(entity,entity_to_check)){
-                    if ((entity.equals(player) && entity_to_check instanceof Enemy) ||
-                            (entity_to_check.equals(player) && entity instanceof Enemy)){
-                        player.receiveDamage(5); //todo ile zycia zabiera
+                    if ((entity.equals(player) && entity_to_check instanceof Enemy)
+//                            ||(entity_to_check.equals(player) && entity instanceof Enemy)
+                    ){
+                        player.receiveDamage(2); //todo ile zycia zabiera
                     }
                     return Utils.ceilOrFloorTheResult(entity,entity_to_check);
                 }
@@ -43,6 +44,24 @@ public class CollisionUnit {
 
         }
         return null;
+    }
+
+
+    public void abandonMovingChangesWhenDetectedCollision(Entity entity,float oldXCoordinate, float oldZCoordinate){
+
+        Vector2f whichFunctionShouldBeUsed;
+        if ((whichFunctionShouldBeUsed = checkIfCollisionExistWithAnyEntity(entity)) != null) {
+
+            if (whichFunctionShouldBeUsed.x==0)
+                oldXCoordinate = oldXCoordinate-1;
+            else oldXCoordinate = oldXCoordinate+1;
+
+            if (whichFunctionShouldBeUsed.y==0)// y because it's 2nd artibute
+                oldZCoordinate = oldZCoordinate-1;
+            else oldZCoordinate = oldZCoordinate+1;
+
+            entity.move(oldXCoordinate,oldZCoordinate);
+        }
     }
 
 

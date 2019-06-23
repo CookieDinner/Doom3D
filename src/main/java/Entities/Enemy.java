@@ -5,11 +5,6 @@ public class Enemy extends LiveEntity {
         super(posX, posZ, model, health, damage);
     }
 
-    public void move(float x, float z){
-        setPosX(x);
-        setPosZ(z);
-    }
-
     public void moveInPlayerDirection(float playerX, float playerZ, float distanceInOneStep){
         if (getPosX() > playerX) setPosX(getPosX()-distanceInOneStep);
         else setPosX(getPosX()+distanceInOneStep);

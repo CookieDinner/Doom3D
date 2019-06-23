@@ -2,7 +2,6 @@ package Engine;
 
 import Entities.Player;
 import lombok.Setter;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
@@ -47,7 +46,7 @@ public class Doom3D implements GameLogicInterface {
     public Doom3D() {
         player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,34);
         collisionUnit = new CollisionUnit(player);
-        rendererUnit = new RendererUnit(collisionUnit);
+        rendererUnit = new RendererUnit(collisionUnit,player);
     }
 
     @Override
@@ -174,32 +173,12 @@ public class Doom3D implements GameLogicInterface {
 
         // Bardzo WAZNA LINIJKA !!! Sprawdza czy którys z modeli nie przeszkadza playerowi.
 
-        Vector2f whichFunctionShouldBeUsed;
-        if ((whichFunctionShouldBeUsed = collisionUnit.checkIfCollisionExistWithAnyEntity(player)) != null) {
-            camPos = camPosBeforeChange;
+        player.move(camPos.x,camPos.z);
+        collisionUnit.abandonMovingChangesWhenDetectedCollision(player,camPosBeforeChange.x,camPosBeforeChange.z);
+        if (player.checkIfEntityDied())player.move(100,-100);
+        camPos.x = player.getPosX();
+        camPos.z = player.getPosZ();
 
-            if (whichFunctionShouldBeUsed.x==0)
-                camPos.x = camPos.x-1;
-            else camPos.x = camPos.x+1;
-
-            if (whichFunctionShouldBeUsed.y==0)// y because it's 2nd artibute
-                camPos.z = camPos.z-1;
-            else camPos.z = camPos.z+1;
-        }
-
-        //todo zakomentowac
-
-//                System.out.println("----------PO     "+camPos.x + "      " + camPos.z);
-
-
-        if (player.checkIfEntityDied()){
-            camPos.x = -100;
-            camPos.z = 100;
-        }
-        player.setPosX(camPos.x);
-        player.setPosZ(camPos.z);
-
-//        System.out.println(camPosBeforeChange);
 
     }
 
