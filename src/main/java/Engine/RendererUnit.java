@@ -1,11 +1,13 @@
 package Engine;
 
+import Entities.Enemy;
 import Entities.LiveEntity;
 import Entities.Model;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.joml.Vector4f;
 import org.lwjgl.opengl.GL11;
+
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -43,10 +45,12 @@ public class RendererUnit implements FileLoader{
     private Model skybox;
 //    private Model dragon;
     private Model hudgun;
+    private Model enemy;
 
     private LiveEntity dragon;
-    private CollisionUnit collisionUnit;
+    private ArrayList<Enemy> enemiesList = new ArrayList<>();
 
+    private CollisionUnit collisionUnit;
     private Lights lights;
 
 
@@ -82,10 +86,18 @@ public class RendererUnit implements FileLoader{
         cube = new Model(shader1, shader2,"cube.obj", "metal.png", "metaldiffuse.png","sky.png");
         skybox = new Model(shader2, shader2,"skybox.obj", "skybox.png","black.png","black.png");
         ground = new Model(shader1, shader2,"ground.obj", "bricks.png","bricksdiffuse.png","black.png");
-        dragon =new LiveEntity(100,100,new Model(shader1, shader2,"dragon.obj", "dragon.png","dragondiffuse.png","black.png"),
-                50,50,50,50,1000,100);
+        enemy = new Model(shader1, shader2,"cube.obj", "metal.png", "metaldiffuse.png","sky.png");
+
+        dragon =new LiveEntity(300,300,new Model(shader1, shader2,"dragon.obj", "dragon.png","dragondiffuse.png","black.png"),
+                250,350,250,350, 1000,100);
 
         collisionUnit.addToList(dragon);
+        enemiesList.add(new Enemy(-50,-50,enemy,-60,-40,-60,-40,100,20));
+        enemiesList.add(new Enemy(50,50,enemy,40,60,40,60,100,20));
+
+        for(Enemy i: enemiesList){
+            collisionUnit.addToList(i);
+        }
 
 
         //REDUNTANT
@@ -130,6 +142,7 @@ public class RendererUnit implements FileLoader{
         clearBuffers();
         glClearColor(0.6f, 0.2f, 0.5f, 1.0f);
         glfwSetInputMode(window.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        int texNumber = 3;
 
         if (window.isResized()) {
             GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -147,25 +160,44 @@ public class RendererUnit implements FileLoader{
 
 
         M.identity().translate(dragon.getPosX(),-9.50f,dragon.getPosZ()).rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f)).scale(20.0f,20.0f,20.0f);
-        dragon.getModel().draw(M,V,P,3);
+        dragon.getModel().draw(M,V,P,texNumber);
+        texNumber+=3;
 
-        Matrix4f lol = new Matrix4f();
-        Vector4f vector4f = new Vector4f(1,1,1,1).mul(lol.identity().translate(10,0,2));
-        System.out.println(vector4f);
+//        Matrix4f lol = new Matrix4f();
+//        Vector4f vector4f = new Vector4f(1,1,1,1).mul(lol.identity().translate(10,0,2));
+//        System.out.println(vector4f);
 
         M.identity().translate(5,10,6).rotate(angle_x,new Vector3f(0f,1.0f,0f)).rotate(angle_y,new Vector3f(1.0f,0f,0f));
         Matrix4f Mtemp = M;
-        cube.draw(M,V,P,6); //1
+        cube.draw(M,V,P,texNumber); //1
+        texNumber+=3;
+
 
         M = Mtemp;
         M.translate(0.7f,4.8f,2.5f);
         Mtemp = M;
         M.scale(0.2f,0.2f,0.2f);
-        gun.draw(M, V, P, 9); //2
+        gun.draw(M, V, P, texNumber); //2
+        texNumber+=3;
+
 
         M = Mtemp;
         M.translate(-12.0f,0.0f,71.0f).rotate(3.14f, new Vector3f(0.0f,1.0f,0.0f));
-        gun.draw(M,V,P, 12); //2
+        gun.draw(M,V,P, texNumber); //2
+        texNumber+=3;
+
+
+
+
+
+        for(Enemy i: enemiesList){
+            //camPos.x == player.x tak samo z "Z"
+//            i.moveInPlayerDirection(camPos.x,camPos.z,0.3f);
+            M.identity().translate(i.getPosX(),10.0f,i.getPosZ()).
+                    rotate(-3.14f/3,new Vector3f(0.0f,1.0f,0.0f)).scale(5.0f,5.0f,5.0f);
+            i.getModel().draw(M,V,P, texNumber); //2 //todo tutaj moze byc blad poniewaz nie wiem o co chodzilo z tymi liczbami texNumber
+            texNumber+=3;
+        }
 
 
 
@@ -173,10 +205,14 @@ public class RendererUnit implements FileLoader{
         // GROUND AND THE SKYBOX DRAWN AT THE END
         M.identity().translate(0,0,0);
         M.scale(60.0f,1.0f,60.0f);
-        ground.draw(M,V,P, 15); //1
+        ground.draw(M,V,P, texNumber); //1
+        texNumber+=3;
+
 
         M.identity().rotate(3.14f,new Vector3f(0.0f,0.0f,1.0f)).translate(0.0f,-6000.0f,0.0f).scale(15000.0f,15000.0f,15000.0f);
-        skybox.draw(M,V,P, 18); //1
+        skybox.draw(M,V,P, texNumber); //1
+        texNumber+=3;
+
 
 
         // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
@@ -189,7 +225,7 @@ public class RendererUnit implements FileLoader{
         if(mouseButton == GLFW_MOUSE_BUTTON_LEFT)
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
 
-        hudgun.draw(M,V,P,12);
+        hudgun.draw(M,V,P,texNumber);
 
 
         //glBindVertexArray(0);

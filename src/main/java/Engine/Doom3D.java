@@ -45,9 +45,9 @@ public class Doom3D implements GameLogicInterface {
     private final CollisionUnit collisionUnit;
 
     public Doom3D() {
-        collisionUnit = new CollisionUnit();
-        rendererUnit = new RendererUnit(collisionUnit);
         player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,34);
+        collisionUnit = new CollisionUnit(player);
+        rendererUnit = new RendererUnit(collisionUnit);
     }
 
     @Override
@@ -171,12 +171,10 @@ public class Doom3D implements GameLogicInterface {
 
 
 
-//        System.out.println(collisionUnit.getCollisionEntitiesList().size());
 
         // Bardzo WAZNA LINIJKA !!! Sprawdza czy którys z modeli nie przeszkadza playerowi.
 
         Vector2f whichFunctionShouldBeUsed;
-
         if ((whichFunctionShouldBeUsed = collisionUnit.checkIfCollisionExistWithAnyEntity(player)) != null) {
             camPos = camPosBeforeChange;
 
@@ -184,23 +182,23 @@ public class Doom3D implements GameLogicInterface {
                 camPos.x = camPos.x-1;
             else camPos.x = camPos.x+1;
 
-//            camPos.x = (float) Math.floor(camPos.x);
-//            else camPos.x = (float) Math.ceil(camPos.x);
-
             if (whichFunctionShouldBeUsed.y==0)// y because it's 2nd artibute
                 camPos.z = camPos.z-1;
             else camPos.z = camPos.z+1;
-//
-////
-//                camPos.z = (float) Math.floor(camPos.z);
-//            else camPos.z = (float) Math.ceil(camPos.z);
         }
+
+        //todo zakomentowac
 
 //                System.out.println("----------PO     "+camPos.x + "      " + camPos.z);
 
 
+        if (player.checkIfEntityDied()){
+            camPos.x = -100;
+            camPos.z = 100;
+        }
         player.setPosX(camPos.x);
         player.setPosZ(camPos.z);
+
 //        System.out.println(camPosBeforeChange);
 
     }
