@@ -6,6 +6,7 @@ import de.matthiasmann.twl.utils.PNGDecoder;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL40;
@@ -45,6 +46,7 @@ public class Model implements FileLoader {
     private int tex2;
     private boolean tex_flag = false;
 
+    private List<Vector4f> collisionBox = new ArrayList<>();
 
     private String cur[];
 
@@ -125,12 +127,27 @@ public class Model implements FileLoader {
                 String line;
                 int m = 0;
                 int n = 0;
-                while((line = r.readLine()) != null){
+                while(!(line = r.readLine()).equals("Box")){
                     if(line.startsWith("f"))
                         for(int i = 1; i < 4; i++) {
                             cur = line.split(" ")[i].split("/");
                             help(cur);
                         }
+                }
+                for (int i = 0; i < 4; i++){
+
+                    line = r.readLine();
+                    if(line == null){
+                        System.out.println("ERROR LOADING THE COLLISION BOX!");
+                        collisionBox.clear();
+                        break;
+                    }
+                    if (line.equals("none")){
+                        break;
+                    }
+
+                    cur = line.split(" ");
+                    collisionBox.add(new Vector4f(Float.parseFloat(cur[1]),Float.parseFloat(cur[2]),Float.parseFloat(cur[2]),1.0f));
                 }
                 VertexCount = face_vertices.size();
                 finish();
