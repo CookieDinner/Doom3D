@@ -11,8 +11,8 @@ public class LiveEntity extends Entity {
     private int health;
     private int damage;
 
-    public LiveEntity(float posX, float posZ, Model model, float minX, float maxX, float minZ, float maxZ, int health, int damage) {
-        super(posX, posZ, model, minX, maxX, minZ, maxZ);
+    public LiveEntity(float posX, float posZ, Model model,int health, int damage) {
+        super(posX, posZ, model);
         this.health = health;
         this.damage = damage;
     }

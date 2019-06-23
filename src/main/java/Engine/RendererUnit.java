@@ -86,14 +86,14 @@ public class RendererUnit implements FileLoader{
         cube = new Model(shader1, shader2,"cube.obj", "metal.png", "metaldiffuse.png","sky.png");
         skybox = new Model(shader2, shader2,"skybox.obj", "skybox.png","black.png","black.png");
         ground = new Model(shader1, shader2,"ground.obj", "bricks.png","bricksdiffuse.png","black.png");
-        enemy = new Model(shader1, shader2,"cube.obj", "metal.png", "metaldiffuse.png","sky.png");
+        enemy = new Model(shader1, shader2,"alien.obj", "alien_tex.png", "alien_diffuse.png","black.png");
 
-        dragon =new LiveEntity(300,300,new Model(shader1, shader2,"dragon.obj", "dragon.png","dragondiffuse.png","black.png"),
-                250,350,250,350, 1000,100);
+        dragon =new LiveEntity(300,300, new Model(shader1, shader2,"dragon.obj",
+                        "dragon.png","dragondiffuse.png","black.png"), 1000,100);
 
         collisionUnit.addToList(dragon);
-        enemiesList.add(new Enemy(-50,-50,enemy,-60,-40,-60,-40,100,20));
-        enemiesList.add(new Enemy(50,50,enemy,40,60,40,60,100,20));
+        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
+        enemiesList.add(new Enemy(50,50,enemy,100,20));
 
         for(Enemy i: enemiesList){
             collisionUnit.addToList(i);
@@ -163,9 +163,6 @@ public class RendererUnit implements FileLoader{
         dragon.getModel().draw(M,V,P,texNumber);
         texNumber+=3;
 
-//        Matrix4f lol = new Matrix4f();
-//        Vector4f vector4f = new Vector4f(1,1,1,1).mul(lol.identity().translate(10,0,2));
-//        System.out.println(vector4f);
 
         M.identity().translate(5,10,6).rotate(angle_x,new Vector3f(0f,1.0f,0f)).rotate(angle_y,new Vector3f(1.0f,0f,0f));
         Matrix4f Mtemp = M;
@@ -188,15 +185,42 @@ public class RendererUnit implements FileLoader{
 
 
 
-
-
         for(Enemy i: enemiesList){
+
+            //        Matrix4f lol = new Matrix4f();
+//        Vector4f vector4f = new Vector4f(1,1,1,1).mul(lol.identity().translate(10,0,2));
+//        System.out.println(vector4f);
+
+            System.out.println("++++++++PRZED EDYCJA");
+            System.out.println(i.getDefaultMinCollisionBox());
+            System.out.println(i.getDefaultMaxCollisionBox());
+            i.updateCurrentVectors((new Matrix4f().identity().scale(1.3f)).translate(i.getPosX(),0.0f,i.getPosZ()));
+            System.out.println("++++++++PO EDYCJI");
+            i.debugVectors();
+
+            System.out.println("POZYCJA PLAYERA ----->>>>>"+ camPos);
+
+
+
             //camPos.x == player.x tak samo z "Z"
 //            i.moveInPlayerDirection(camPos.x,camPos.z,0.3f);
-            M.identity().translate(i.getPosX(),10.0f,i.getPosZ()).
-                    rotate(-3.14f/3,new Vector3f(0.0f,1.0f,0.0f)).scale(5.0f,5.0f,5.0f);
-            i.getModel().draw(M,V,P, texNumber); //2 //todo tutaj moze byc blad poniewaz nie wiem o co chodzilo z tymi liczbami texNumber
-            texNumber+=3;
+
+
+
+//            for (Vector4f vec: i.getModel().getCollisionBox()){
+//                System.out.println(vec);
+//            }
+//            System.out.println("-------------------------");
+
+
+
+
+            M.identity().translate(i.getPosX(),1.0f,i.getPosZ())
+                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
+                    .scale(1.3f,1.3f,1.3f);
+
+
+            i.getModel().draw(M,V,P, texNumber); //2
         }
 
 

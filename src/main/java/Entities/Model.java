@@ -3,6 +3,7 @@ package Entities;
 import Engine.FileLoader;
 import Engine.ShaderProgram;
 import de.matthiasmann.twl.utils.PNGDecoder;
+import lombok.Getter;
 import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
@@ -46,6 +47,7 @@ public class Model implements FileLoader {
     private int tex2;
     private boolean tex_flag = false;
 
+    @Getter
     private List<Vector4f> collisionBox = new ArrayList<>();
 
     private String cur[];
@@ -147,7 +149,7 @@ public class Model implements FileLoader {
                     }
 
                     cur = line.split(" ");
-                    collisionBox.add(new Vector4f(Float.parseFloat(cur[1]),Float.parseFloat(cur[2]),Float.parseFloat(cur[2]),1.0f));
+                    collisionBox.add(new Vector4f(Float.parseFloat(cur[1]),Float.parseFloat(cur[2]),Float.parseFloat(cur[3]),1.0f));
                 }
                 VertexCount = face_vertices.size();
                 finish();
