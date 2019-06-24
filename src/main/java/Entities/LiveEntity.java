@@ -22,8 +22,8 @@ public class LiveEntity extends Entity {
 
         if (getHealth() <=0){
             setHealth(100);
-            setPosZ(random.nextInt(1000));
-            setPosX(random.nextInt(1000));
+            setPosZ(random.nextInt(500));
+            setPosX(random.nextInt(500));
             return true;
         }
         return false;

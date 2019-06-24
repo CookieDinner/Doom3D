@@ -6,7 +6,6 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -98,7 +97,7 @@ public class RendererUnit implements FileLoader{
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
         collisionUnit.addToList(dragon);
 
-        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
+        enemiesList.add(new Enemy(-50,-50,enemy,100,10));
         enemiesList.add(new Enemy(50,50,enemy,100,20));
 
         for(Enemy i: enemiesList){
@@ -203,9 +202,10 @@ public class RendererUnit implements FileLoader{
         for(Enemy enemy: enemiesList){
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
             enemy.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
+
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
-            if (enemy.checkIfEntityDied())enemy.move(new Random().nextInt(300),new Random().nextInt(300));
+            enemy.checkIfEntityDied();
             enemy.setToPlayerVector(player);
 
             M.identity()
@@ -247,8 +247,6 @@ public class RendererUnit implements FileLoader{
 
 
 
-        Matrix4f oldV = new Matrix4f().set(V);
-
         // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
         // Those parts absolutely have to be put at the end, because we are completely clearing the View Matrix
         M.identity();
@@ -256,7 +254,8 @@ public class RendererUnit implements FileLoader{
         V.scale(0.3f,0.3f,0.3f);
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
-        if(mouseButton == GLFW_MOUSE_BUTTON_LEFT){
+
+        if(player.isShowShootAnimation() && mouseButton == GLFW_MOUSE_BUTTON_LEFT){
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
             float theClosestEnemy = Float.MAX_VALUE;
             int whichEnemyIsTheClosest=-1, i=0;
@@ -277,9 +276,9 @@ public class RendererUnit implements FileLoader{
 
                 i++;
 
-                System.out.println("DISTANCE      "+ distance);
-                System.out.println("WYNIK       " +  vectorsMultiplication);
-                System.out.println(player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication));
+//                System.out.println("DISTANCE      "+ distance);
+//                System.out.println("WYNIK       " +  vectorsMultiplication);
+//                System.out.println(player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication));
                 //todo zakomentowac
 
 //                PickingRay pickingRay = new PickingRay();
@@ -319,7 +318,10 @@ public class RendererUnit implements FileLoader{
 //                System.out.println("To jest wynik    "+pickingRay.getClickPosInWorld());
             }
 
-//            if (whichEnemyIsTheClosest!=-1) enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+            if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {
+                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+                player.setCanShoot(false);
+            }
 
         }
         hudgun.draw(M,V,P,texNumber);
