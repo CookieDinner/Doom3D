@@ -36,4 +36,12 @@ public class Utils {
 
     }
 
+    public static float distance3DBetween2Points(float x, float y, float z, float x1, float y1, float z1){
+        return (float) Math.sqrt((x-x1)*(x-x1)) + (float)Math.sqrt((y-y1)*(y-y1)) + (float)Math.sqrt((z-z1)*(z-z1));
+    }
+
+    public static float distance2DBetween2Points(float x, float z, float x1, float z1){
+        return (float) Math.sqrt((x-x1)*(x-x1)) + (float)Math.sqrt((z-z1)*(z-z1));
+    }
+
 }

@@ -33,7 +33,7 @@ public class Doom3D implements GameLogicInterface {
     private boolean first = true;
 
     Vector3f camPos = new Vector3f(0.0f, 10.0f, 20.0f);
-    Vector3f camFront = new Vector3f(1.0f, 0.0f, 0.0f);
+    Vector3f camFront = new Vector3f(0.0f, .0f, -1.0f);
     Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
     Vector3f camRight = new Vector3f().set(camFront).cross(camUp).normalize();
     private int mouseButton = 99;

@@ -97,7 +97,7 @@ public class RendererUnit implements FileLoader{
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
         collisionUnit.addToList(dragon);
 
-        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
+//        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
         enemiesList.add(new Enemy(50,50,enemy,100,20));
 
         for(Enemy i: enemiesList){
@@ -203,7 +203,7 @@ public class RendererUnit implements FileLoader{
 
         for(Enemy i: enemiesList){
             float oldX = i.getPosX() , oldZ = i.getPosZ();
-            i.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
+//            i.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
             collisionUnit.abandonMovingChangesWhenDetectedCollision(i,oldX,oldZ);
 
             //todo zrobic umieranie jednostek
@@ -246,6 +246,8 @@ public class RendererUnit implements FileLoader{
 
 
 
+        Matrix4f oldV = new Matrix4f().set(V);
+
         // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
         // Those parts absolutely have to be put at the end, because we are completely clearing the View Matrix
         M.identity();
@@ -253,8 +255,61 @@ public class RendererUnit implements FileLoader{
         V.scale(0.3f,0.3f,0.3f);
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
-        if(mouseButton == GLFW_MOUSE_BUTTON_LEFT)
+        if(mouseButton == GLFW_MOUSE_BUTTON_LEFT){
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
+
+
+            for (Enemy enemy: enemiesList){
+
+                Vector3f cameraFront = new Vector3f();
+                camRight.cross(camUp,cameraFront);
+                System.out.println(cameraFront);
+
+                Vector3f toPlayer = new Vector3f();
+                toPlayer.set(player.getPosX() - enemy.getPosX(),0,player.getPosZ() - enemy.getPosZ());
+                System.out.println(toPlayer);
+
+                System.out.println("WYNIK    " +    toPlayer.dot(cameraFront));
+//                PickingRay pickingRay = new PickingRay();
+//                DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
+//                DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
+//                glfwGetCursorPos(window.getWindowHandle(), xBuffer, yBuffer);
+//                float mouseXOnScreen = (float) xBuffer.get(0);
+//                float mouseYOnScreen = (float) yBuffer.get(0);
+
+//                System.out.println("Distance 2D:   "+ Utils.distance2DBetween2Points(enemy.getPosX(),enemy.getPosZ(),
+//                        player.getPosX(),player.getPosZ()));
+//
+//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(enemy.getPosX(),1,enemy.getPosZ(),
+//                        player.getPosX(),camPos.y,player.getPosZ()));
+
+//                System.out.println(camPos);
+//
+//
+//
+//                pickingRay.calcuateScreenVerticallyAndHorizontally(new Vector3f().set(camPos).add(camFront),camPos,camUp,
+//                        50,100,window.getWidth()/window.getHeight());
+//                pickingRay.picking(mouseXOnScreen,mouseYOnScreen,camPos,window.getWidth(),window.getHeight());
+//                System.out.println(pickingRay.isIntersectingThePoint(enemy.getPosX(),4,enemy.getPosZ()));
+//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(pickingRay.getClickPosInWorld().x,
+//                        pickingRay.getClickPosInWorld().y,pickingRay.getClickPosInWorld().z,
+//                        player.getPosX(),camPos.y,player.getPosZ()));
+
+                //todo zakomentowac
+//                System.out.println(pickingRay.getClickPosInWorld());
+//                System.out.println(pickingRay.getDirection());
+//                float [] data = new float[3];
+//                data[0]=enemy.getPosX();
+//                data[1]=1;
+//                data[0]=enemy.getPosZ();
+//
+//                pickingRay.intersectionWithXyPlane(data);
+//                System.out.println("To jest wynik    "+pickingRay.getClickPosInWorld());
+            }
+
+
+
+        }
         hudgun.draw(M,V,P,texNumber);
         texNumber+=3;
 
