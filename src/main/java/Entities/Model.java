@@ -129,7 +129,7 @@ public class Model implements FileLoader {
                 String line;
                 int m = 0;
                 int n = 0;
-                while(!(line = r.readLine()).equals("Box")){
+                while(!(line = r.readLine()).contains("Box")){
                     if(line.startsWith("f"))
                         for(int i = 1; i < 4; i++) {
                             cur = line.split(" ")[i].split("/");
