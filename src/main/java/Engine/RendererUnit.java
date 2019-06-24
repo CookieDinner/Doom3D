@@ -109,7 +109,6 @@ public class RendererUnit implements FileLoader{
             collisionUnit.addToList(i);
         }
 
-
         playersHealth.add(new Entity(-7.75f,-10,heart));
         playersHealth.add(new Entity(-6.75f,-10,heart));
         playersHealth.add(new Entity(-5.75f,-10,heart));
@@ -202,8 +201,6 @@ public class RendererUnit implements FileLoader{
         texNumber+=3;
 
 
-
-
         M = Mtemp;
         M.translate(-12.0f,0.0f,71.0f).rotate(3.14f, new Vector3f(0.0f,1.0f,0.0f));
         gun.draw(M,V,P, texNumber); //2
@@ -212,11 +209,11 @@ public class RendererUnit implements FileLoader{
 
         for(Enemy enemy: enemiesList){
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
-            //STEP
-            enemy.moveInPlayerDirection(camPos.x,camPos.z,0.0f);
+            enemy.moveInPlayerDirection(player,0.0f);
+
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
-            if (enemy.checkIfEntityDied())enemy.move(new Random().nextInt(300),new Random().nextInt(300));
+            enemy.checkIfEntityDied();
             enemy.setToPlayerVector(player);
 
             M.identity()
@@ -258,8 +255,6 @@ public class RendererUnit implements FileLoader{
 
 
 
-        Matrix4f oldV = new Matrix4f().set(V);
-
         // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
         // Those parts absolutely have to be put at the end, because we are completely clearing the View Matrix
         M.identity();
@@ -267,7 +262,8 @@ public class RendererUnit implements FileLoader{
         V.scale(0.3f,0.3f,0.3f);
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
-        if(mouseButton == GLFW_MOUSE_BUTTON_LEFT){
+
+        if(player.isShowShootAnimation() && mouseButton == GLFW_MOUSE_BUTTON_LEFT){
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
             float theClosestEnemy = Float.MAX_VALUE;
             int whichEnemyIsTheClosest=-1, i=0;
@@ -287,50 +283,12 @@ public class RendererUnit implements FileLoader{
                 }
 
                 i++;
-
-                System.out.println("DISTANCE      "+ distance);
-                System.out.println("WYNIK       " +  vectorsMultiplication);
-                System.out.println(player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication));
-                //todo zakomentowac
-
-//                PickingRay pickingRay = new PickingRay();
-//                DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
-//                DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
-//                glfwGetCursorPos(window.getWindowHandle(), xBuffer, yBuffer);
-//                float mouseXOnScreen = (float) xBuffer.get(0);
-//                float mouseYOnScreen = (float) yBuffer.get(0);
-
-//                System.out.println("Distance 2D:   "+ Utils.distance2DBetween2Points(enemy.getPosX(),enemy.getPosZ(),
-//                        player.getPosX(),player.getPosZ()));
-//
-//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(enemy.getPosX(),1,enemy.getPosZ(),
-//                        player.getPosX(),camPos.y,player.getPosZ()));
-
-//                System.out.println(camPos);
-//
-//
-//
-//                pickingRay.calcuateScreenVerticallyAndHorizontally(new Vector3f().set(camPos).add(camFront),camPos,camUp,
-//                        50,100,window.getWidth()/window.getHeight());
-//                pickingRay.picking(mouseXOnScreen,mouseYOnScreen,camPos,window.getWidth(),window.getHeight());
-//                System.out.println(pickingRay.isIntersectingThePoint(enemy.getPosX(),4,enemy.getPosZ()));
-//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(pickingRay.getClickPosInWorld().x,
-//                        pickingRay.getClickPosInWorld().y,pickingRay.getClickPosInWorld().z,
-//                        player.getPosX(),camPos.y,player.getPosZ()));
-
-                //todo zakomentowac
-//                System.out.println(pickingRay.getClickPosInWorld());
-//                System.out.println(pickingRay.getDirection());
-//                float [] data = new float[3];
-//                data[0]=enemy.getPosX();
-//                data[1]=1;
-//                data[0]=enemy.getPosZ();
-//
-//                pickingRay.intersectionWithXyPlane(data);
-//                System.out.println("To jest wynik    "+pickingRay.getClickPosInWorld());
             }
 
-//            if (whichEnemyIsTheClosest!=-1) enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+            if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {
+                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+                player.setCanShoot(false);
+            }
 
         }
         hudgun.draw(M,V,P,texNumber);
