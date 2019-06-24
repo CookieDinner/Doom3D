@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -46,6 +47,10 @@ public class RendererUnit implements FileLoader{
     private Model enemy;
     private Model heart;
 
+    private Map map = new Map();
+
+    //private Entity wall;
+
 //    private Entity cubic;
     private LiveEntity dragon;
     private ArrayList<Enemy> enemiesList = new ArrayList<>();
@@ -64,8 +69,8 @@ public class RendererUnit implements FileLoader{
     public void initBuffer() throws Exception {
 
         shader1 = new ShaderProgram();
-        shader1.createVertexShader("vertex_simp.glsl");
-        shader1.createFragmentShader("fragment_simp.glsl");
+        shader1.createVertexShader("vertex.glsl");
+        shader1.createFragmentShader("fragment.glsl");
 
         shader2 = new ShaderProgram();
         shader2.createVertexShader("vertex_simp.glsl");
@@ -88,28 +93,29 @@ public class RendererUnit implements FileLoader{
         hudgun = new Model(shader1, shader2, "handgun.obj", "guntex.png","gundiffuse.png","black.png");
         cube = new Model(shader1, shader2,"cube.obj", "metal.png", "metaldiffuse.png","sky.png");
         skybox = new Model(shader2, shader2,"skybox.obj", "skybox.png","black.png","black.png");
-        ground = new Model(shader1, shader2,"ground.obj", "bricks.png","bricksdiffuse.png","black.png");
+        ground = new Model(shader1, shader2,"ground.obj", "metal_floor.png","metal_floor_diffuse.png","black.png");
         enemy = new Model(shader1, shader2,"alien.obj", "alien_tex.png", "alien_diffuse.png","black.png");
         heart = new Model(shader1, shader2, "heart.obj", "heart.png", "black.png", "black.png");
 
 
-        dragon =new LiveEntity(300,300, new Model(shader1, shader2,"dragon.obj",
+        /*dragon =new LiveEntity(300,300, new Model(shader1, shader2,"dragon.obj",
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
-        collisionUnit.addToList(dragon);
+        collisionUnit.addToList(dragon);*/
 
-        enemiesList.add(new Enemy(-50,-50,enemy,100,10));
+        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
         enemiesList.add(new Enemy(50,50,enemy,100,20));
 
         for(Enemy i: enemiesList){
             collisionUnit.addToList(i);
         }
 
+
         playersHealth.add(new Entity(-7.75f,-10,heart));
         playersHealth.add(new Entity(-6.75f,-10,heart));
         playersHealth.add(new Entity(-5.75f,-10,heart));
         playersHealth.add(new Entity(-4.75f,-10,heart));
 
-
+        map.load(collisionUnit,shader1,shader2);
 
         //REDUNTANT
 
@@ -170,13 +176,16 @@ public class RendererUnit implements FileLoader{
         //glBindVertexArray(vaoId);
 
 
-        M.identity().translate(dragon.getPosX(),-9.50f,dragon.getPosZ()).rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f)).scale(20.0f,20.0f,20.0f);
+        /*M.identity().translate(dragon.getPosX(),-9.50f,dragon.getPosZ()).rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f)).scale(20.0f,20.0f,20.0f);
         dragon.getModel().draw(M,V,P,texNumber);
         dragon.updateCurrentVectors(new Matrix4f().identity()
                 .translate(dragon.getPosX(),-9.50f,dragon.getPosZ())
 //                .rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f))
                 .scale(20.0f,20.0f,20.0f));
-        texNumber+=3;
+        texNumber+=3;*/
+
+        M.identity();
+        map.draw(shader1, shader2,M,V,P);
 
 
         M.identity().translate(5,10,6).rotate(angle_x,new Vector3f(0f,1.0f,0f)).rotate(angle_y,new Vector3f(1.0f,0f,0f));
@@ -193,6 +202,8 @@ public class RendererUnit implements FileLoader{
         texNumber+=3;
 
 
+
+
         M = Mtemp;
         M.translate(-12.0f,0.0f,71.0f).rotate(3.14f, new Vector3f(0.0f,1.0f,0.0f));
         gun.draw(M,V,P, texNumber); //2
@@ -201,11 +212,11 @@ public class RendererUnit implements FileLoader{
 
         for(Enemy enemy: enemiesList){
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
-            enemy.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
-
+            //STEP
+            enemy.moveInPlayerDirection(camPos.x,camPos.z,0.0f);
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
-            enemy.checkIfEntityDied();
+            if (enemy.checkIfEntityDied())enemy.move(new Random().nextInt(300),new Random().nextInt(300));
             enemy.setToPlayerVector(player);
 
             M.identity()
@@ -247,6 +258,8 @@ public class RendererUnit implements FileLoader{
 
 
 
+        Matrix4f oldV = new Matrix4f().set(V);
+
         // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
         // Those parts absolutely have to be put at the end, because we are completely clearing the View Matrix
         M.identity();
@@ -254,8 +267,7 @@ public class RendererUnit implements FileLoader{
         V.scale(0.3f,0.3f,0.3f);
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
-
-        if(player.isShowShootAnimation() && mouseButton == GLFW_MOUSE_BUTTON_LEFT){
+        if(mouseButton == GLFW_MOUSE_BUTTON_LEFT){
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
             float theClosestEnemy = Float.MAX_VALUE;
             int whichEnemyIsTheClosest=-1, i=0;
@@ -276,9 +288,9 @@ public class RendererUnit implements FileLoader{
 
                 i++;
 
-//                System.out.println("DISTANCE      "+ distance);
-//                System.out.println("WYNIK       " +  vectorsMultiplication);
-//                System.out.println(player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication));
+                System.out.println("DISTANCE      "+ distance);
+                System.out.println("WYNIK       " +  vectorsMultiplication);
+                System.out.println(player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication));
                 //todo zakomentowac
 
 //                PickingRay pickingRay = new PickingRay();
@@ -318,10 +330,7 @@ public class RendererUnit implements FileLoader{
 //                System.out.println("To jest wynik    "+pickingRay.getClickPosInWorld());
             }
 
-            if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {
-                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
-                player.setCanShoot(false);
-            }
+//            if (whichEnemyIsTheClosest!=-1) enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
 
         }
         hudgun.draw(M,V,P,texNumber);

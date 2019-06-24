@@ -29,17 +29,16 @@ public class Doom3D implements GameLogicInterface {
     private double yaw, pitch;
 
     private Player player;
-    private int upperBoundOfDelay = 60;
-    private int delayForHurtingPLayer;
-    private int delayForShootingEnemies;
 
     private boolean first = true;
 
-    Vector3f camPos = new Vector3f(0.0f, 10.0f, 20.0f);
-    Vector3f camFront = new Vector3f(1.0f, .0f, 0.0f);
+    Vector3f spawnPoint = new Vector3f(-35.0f, 17.0f, 5.0f);
+    Vector3f camPos = new Vector3f().set(spawnPoint);
+    Vector3f camFront = new Vector3f(1.0f, -0.09f, 0.0f);
     Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
     Vector3f camRight = new Vector3f().set(camFront).cross(camUp).normalize();
     private int mouseButton = 99;
+    private int mouseAction = 99;
 
 
     private final RendererUnit rendererUnit;
@@ -49,8 +48,6 @@ public class Doom3D implements GameLogicInterface {
         player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,30);
         collisionUnit = new CollisionUnit(player);
         rendererUnit = new RendererUnit(collisionUnit,player);
-        delayForHurtingPLayer = upperBoundOfDelay;
-        delayForShootingEnemies = upperBoundOfDelay;
     }
 
     @Override
@@ -74,12 +71,13 @@ public class Doom3D implements GameLogicInterface {
                 offsetY *= mouse_sensitivity;
 
                 yaw += offsetX;
-                pitch += offsetY;
+                //pitch += offsetY;
 
-                if(pitch > 89.0f)
+                /*if(pitch > 89.0f)
                     pitch = 89.0f;
                 if(pitch < -89.0f)
-                    pitch = -89.0f;
+                    pitch = -89.0f;*/
+                pitch = -5.0f;
 
                 Vector3f front = new Vector3f(
                         (float)(Math.cos(Math.toRadians(yaw))*Math.cos(Math.toRadians(pitch))),
@@ -90,7 +88,6 @@ public class Doom3D implements GameLogicInterface {
 
             }
         });
-
         glfwSetMouseButtonCallback(window.getWindowHandle(), new GLFWMouseButtonCallback() {
             @Override
             public void invoke(long window, int button, int action, int mods) {
@@ -106,6 +103,7 @@ public class Doom3D implements GameLogicInterface {
 
     @Override
     public void input(Window window) {
+//        System.out.println("Przed     "+camPos.x + "      " + camPos.z);
         Vector3f camPosBeforeChange = new Vector3f(camPos.x, camPos.y, camPos.z);
 
 
@@ -178,21 +176,16 @@ public class Doom3D implements GameLogicInterface {
         // Bardzo WAZNA LINIJKA !!! Sprawdza czy którys z modeli nie przeszkadza playerowi.
 
         player.move(camPos.x,camPos.z);
-
         collisionUnit.abandonMovingChangesWhenDetectedCollision(player,camPosBeforeChange.x,camPosBeforeChange.z);
-
-        if (delayForHurtingPLayer == upperBoundOfDelay && !player.isCanBeHurt()) {
-            player.setCanBeHurt(true);
-            delayForHurtingPLayer = 0;
+        if (player.checkIfEntityDied() || window.isKeyPressed(GLFW_KEY_P)){
+            player.move(spawnPoint.x, spawnPoint.z);
+            yaw = 0.0f;
+            camFront.set(1.0f,-0.09f,0.0f);
         }
-
-        player.checkIfEntityDied();
         camPos.x = player.getPosX();
         camPos.z = player.getPosZ();
 
         player.setLookAheadVector(camUp,camRight);
-
-        if (!player.isCanBeHurt() && delayForHurtingPLayer < upperBoundOfDelay) delayForHurtingPLayer++;
 
 
     }
@@ -209,17 +202,6 @@ public class Doom3D implements GameLogicInterface {
         angle_y+=speed_y*glfwGetTime(); //Zwiększ/zmniejsz kąt obrotu na podstawie prędkości i czasu jaki upłynał od poprzedniej klatki
 
         glfwSetTime(0); //Zeruj timer
-
-        if (!player.isCanShoot() && delayForShootingEnemies == upperBoundOfDelay) {
-            player.setCanShoot(true);
-            player.setShowShootAnimation(true);
-            System.out.println("LOLLLLL");
-            delayForShootingEnemies = 0;
-        }
-
-        if (!player.isCanShoot() && delayForShootingEnemies < upperBoundOfDelay) delayForShootingEnemies++;
-        if (delayForShootingEnemies == upperBoundOfDelay/3) player.setShowShootAnimation(false);
-
         rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp, camRight, mouseButton);
     }
 
