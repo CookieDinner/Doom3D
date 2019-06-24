@@ -101,7 +101,7 @@ public class RendererUnit implements FileLoader{
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
         collisionUnit.addToList(dragon);*/
 
-        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
+//        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
         enemiesList.add(new Enemy(50,50,enemy,100,20));
 
         for(Enemy i: enemiesList){
@@ -208,7 +208,7 @@ public class RendererUnit implements FileLoader{
 
         for(Enemy enemy: enemiesList){
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
-            enemy.moveInPlayerDirection(player,0.4f);
+//            enemy.moveInPlayerDirection(player,0.4f);
 
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
@@ -274,7 +274,13 @@ public class RendererUnit implements FileLoader{
                         player.getPosX(),player.getPosZ());
 
                 float vectorsMultiplication = enemy.getToPlayerVector().dot(player.getLookAheadVector());
-                if (player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication)){
+                System.out.println(vectorsMultiplication);
+                System.out.println(1 - Math.atan(1/distance));
+
+//                System.out.println(Math.atan2(enemy.getToPlayerVector().x,enemy.getToPlayerVector().z));
+
+//                if (player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication)){
+                if (-(1 - Math.atan(1/distance)) > vectorsMultiplication){
                     if (theClosestEnemy>distance){
                         theClosestEnemy = distance;
                         whichEnemyIsTheClosest = i;

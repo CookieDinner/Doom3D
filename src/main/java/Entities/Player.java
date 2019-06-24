@@ -48,6 +48,9 @@ public class Player extends LiveEntity{
         return false;
     }
 
+//    public boolean isInRange(float value, float range){
+//    }
+
     @Override
     public void receiveDamage(int damage) {
         super.receiveDamage(damage);
