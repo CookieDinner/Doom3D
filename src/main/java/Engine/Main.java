@@ -1,8 +1,5 @@
 package Engine;
 
-import Entities.Model;
-import org.joml.Vector3f;
-
 public class Main{
 
     public static void main(String[] args) {
@@ -10,7 +7,7 @@ public class Main{
             boolean vSync = true;
 
             GameLogicInterface gameLogic = new Doom3D();
-            GameEngine gameEngine = new GameEngine("DOOM 3D GAME", 1920, 1080, vSync, gameLogic);
+            GameEngine gameEngine = new GameEngine("DOOM 3D GAME", 800, 600, vSync, gameLogic);
             gameEngine.start();
 
         } catch (Exception excp) {

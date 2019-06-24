@@ -36,7 +36,7 @@ public class CollisionUnit {
                     if ((entity.equals(player) && entity_to_check instanceof Enemy)
 //                            ||(entity_to_check.equals(player) && entity instanceof Enemy)
                     ){
-                        player.receiveDamage(2); //todo ile zycia zabiera
+                        player.receiveDamage(((Enemy) entity_to_check).getDamage()); //todo ile zycia zabiera
                     }
                     return Utils.ceilOrFloorTheResult(entity,entity_to_check);
                 }

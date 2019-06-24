@@ -6,6 +6,7 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -97,7 +98,7 @@ public class RendererUnit implements FileLoader{
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
         collisionUnit.addToList(dragon);
 
-//        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
+        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
         enemiesList.add(new Enemy(50,50,enemy,100,20));
 
         for(Enemy i: enemiesList){
@@ -199,34 +200,34 @@ public class RendererUnit implements FileLoader{
         texNumber+=3;
 
 
-        // UWAGA !!! camPos.x == player.x tak samo z "Z"
+        for(Enemy enemy: enemiesList){
+            float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
+            enemy.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
+            collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
-        for(Enemy i: enemiesList){
-            float oldX = i.getPosX() , oldZ = i.getPosZ();
-//            i.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
-            collisionUnit.abandonMovingChangesWhenDetectedCollision(i,oldX,oldZ);
+            if (enemy.checkIfEntityDied())enemy.move(new Random().nextInt(300),new Random().nextInt(300));
+            enemy.setToPlayerVector(player);
 
-            //todo zrobic umieranie jednostek
-//            if (i.checkIfEntityDied())i.move(new Random().nextInt(500),new Random().nextInt(500));
-
-
-            M.identity().translate(i.getPosX(),1.0f,i.getPosZ())
-                    .rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f))
+            M.identity()
+                    .translate(enemy.getPosX(),1.0f,enemy.getPosZ())
+                    .rotate((float) Math.atan2(enemy.getToPlayerVector().x,enemy.getToPlayerVector().z) -0.4f ,0,1,0)
                     .scale(1.3f,1.3f,1.3f);
-            i.getModel().draw(M,V,P, texNumber); //2
+            enemy.getModel().draw(M,V,P, texNumber); //2
+
 
 
             //            System.out.println("++++++++PRZED EDYCJA");
-//            System.out.println(i.getDefaultMinCollisionBox());
-//            System.out.println(i.getDefaultMaxCollisionBox());
-            i.updateCurrentVectors((new Matrix4f().identity()
-                    .translate(i.getPosX(),0.0f,i.getPosZ())
+//            System.out.println(enemy.getDefaultMinCollisionBox());
+//            System.out.println(enemy.getDefaultMaxCollisionBox());
+
+            enemy.updateCurrentVectors((new Matrix4f().identity()
+                    .translate(enemy.getPosX(),0.0f,enemy.getPosZ())
 //                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
                     .scale(1.3f) //todo poprawic collision boxy
             ));
 //
 //            System.out.println("++++++++PO EDYCJI");
-//            i.debugVectors();
+//            enemy.debugVectors();
 //            System.out.println("POZYCJA PLAYERA ----->>>>>"+ camPos);
 
         }
@@ -257,19 +258,30 @@ public class RendererUnit implements FileLoader{
         glClear(GL_DEPTH_BUFFER_BIT);
         if(mouseButton == GLFW_MOUSE_BUTTON_LEFT){
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
-
+            float theClosestEnemy = Float.MAX_VALUE;
+            int whichEnemyIsTheClosest=-1, i=0;
 
             for (Enemy enemy: enemiesList){
 
-                Vector3f cameraFront = new Vector3f();
-                camRight.cross(camUp,cameraFront);
-                System.out.println(cameraFront);
 
-                Vector3f toPlayer = new Vector3f();
-                toPlayer.set(player.getPosX() - enemy.getPosX(),0,player.getPosZ() - enemy.getPosZ());
-                System.out.println(toPlayer);
+                float distance = Utils.distance2DBetween2Points(enemy.getPosX(),enemy.getPosZ(),
+                        player.getPosX(),player.getPosZ());
 
-                System.out.println("WYNIK    " +    toPlayer.dot(cameraFront));
+                float vectorsMultiplication = enemy.getToPlayerVector().dot(player.getLookAheadVector());
+                if (player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication)){
+                    if (theClosestEnemy>distance){
+                        theClosestEnemy = distance;
+                        whichEnemyIsTheClosest = i;
+                    }
+                }
+
+                i++;
+
+                System.out.println("DISTANCE      "+ distance);
+                System.out.println("WYNIK       " +  vectorsMultiplication);
+                System.out.println(player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication));
+                //todo zakomentowac
+
 //                PickingRay pickingRay = new PickingRay();
 //                DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
 //                DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
@@ -307,7 +319,7 @@ public class RendererUnit implements FileLoader{
 //                System.out.println("To jest wynik    "+pickingRay.getClickPosInWorld());
             }
 
-
+//            if (whichEnemyIsTheClosest!=-1) enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
 
         }
         hudgun.draw(M,V,P,texNumber);
@@ -317,10 +329,10 @@ public class RendererUnit implements FileLoader{
 
         M.identity();
         for (int i=0;i< player.getHealth()/25;i++){
-            Entity e = playersHealth.get(i);
-            V.identity().translate(e.getPosX(),-4.5f,e.getPosZ());
+            Entity heart = playersHealth.get(i);
+            V.identity().translate(heart.getPosX(),-4.5f,heart.getPosZ());
             V.scale(0.25f,0.25f,0.25f);
-            e.getModel().draw(M,V,P,texNumber);
+            heart.getModel().draw(M,V,P,texNumber);
         }
 
 

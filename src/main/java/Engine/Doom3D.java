@@ -33,7 +33,7 @@ public class Doom3D implements GameLogicInterface {
     private boolean first = true;
 
     Vector3f camPos = new Vector3f(0.0f, 10.0f, 20.0f);
-    Vector3f camFront = new Vector3f(0.0f, .0f, -1.0f);
+    Vector3f camFront = new Vector3f(1.0f, .0f, 0.0f);
     Vector3f camUp = new Vector3f(0.0f, 1.0f, 0.0f);
     Vector3f camRight = new Vector3f().set(camFront).cross(camUp).normalize();
     private int mouseButton = 99;
@@ -44,7 +44,7 @@ public class Doom3D implements GameLogicInterface {
     private final CollisionUnit collisionUnit;
 
     public Doom3D() {
-        player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,34);
+        player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,30);
         collisionUnit = new CollisionUnit(player);
         rendererUnit = new RendererUnit(collisionUnit,player);
     }
@@ -178,6 +178,8 @@ public class Doom3D implements GameLogicInterface {
         if (player.checkIfEntityDied())player.move(100,-100);
         camPos.x = player.getPosX();
         camPos.z = player.getPosZ();
+
+        player.setLookAheadVector(camUp,camRight);
 
 
     }
