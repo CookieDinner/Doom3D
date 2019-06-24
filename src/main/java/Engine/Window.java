@@ -44,6 +44,7 @@ public class Window {
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_SAMPLES, 4);
 
         // This is optional. It forces program to use the newest OpenGL - necessary for MAC
 //        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -62,24 +63,6 @@ public class Window {
             this.setResized(true);
         });
 
-        //Callback on keyboard
-//        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
-//            if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-//                glfwSetWindowShouldClose(window, true);
-//            if (action==GLFW_PRESS) {
-//                if (key==GLFW_KEY_LEFT) speed_x=-PI/2;
-//                if (key==GLFW_KEY_RIGHT) speed_x=PI/2;
-//                if (key==GLFW_KEY_UP) speed_y=PI/2;
-//                if (key==GLFW_KEY_DOWN) speed_y=-PI/2;
-//            }
-//            if (action==GLFW_RELEASE) {
-//                if (key==GLFW_KEY_LEFT) speed_x=0;
-//                if (key==GLFW_KEY_RIGHT) speed_x=0;
-//                if (key==GLFW_KEY_UP) speed_y=0;
-//                if (key==GLFW_KEY_DOWN) speed_y=0;
-//            }
-//        });
-
 
         // Get the resolution of the primary monitor
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -93,10 +76,12 @@ public class Window {
         // Make the OpenGL context current
         glfwMakeContextCurrent(windowHandle);
 
-        if (isVSync()) {
+        if (vSync==true) {
             // Enable v-sync
             glfwSwapInterval(1);
         }
+        else
+            glfwSwapInterval(0);
 
         // Make the window visible
         glfwShowWindow(windowHandle);

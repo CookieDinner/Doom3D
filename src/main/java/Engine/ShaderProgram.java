@@ -44,20 +44,20 @@ public class ShaderProgram implements FileLoader {
     }
 
 
-    public void createVertexShader(String fileName) throws Exception {
+    public void createVertexShader(String fileName) throws Exception{
 
         String shaderCode = loadProgramAsString(generateAbsolutePath("VertexShader/"+fileName));
         vertexShaderId = createShader(shaderCode, GL_VERTEX_SHADER);
     }
 
-    public void createFragmentShader(String fileName) throws Exception {
+    public void createFragmentShader(String fileName) throws Exception{
 
         String shaderCode = loadProgramAsString(generateAbsolutePath("FragmentShader/"+fileName));
         fragmentShaderId = createShader(shaderCode, GL_FRAGMENT_SHADER);
     }
 
 
-    protected int createShader(String shaderCode, int shaderType) throws Exception {
+    protected int createShader(String shaderCode, int shaderType) throws Exception{
         int shaderId = glCreateShader(shaderType);
         if (shaderId == 0) {
             throw new Exception("Error creating shader. Type: " + shaderType);

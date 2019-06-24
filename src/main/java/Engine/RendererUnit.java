@@ -1,65 +1,121 @@
 package Engine;
 
-import Entities.MyCube;
+import Entities.*;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL30;
 
-import java.nio.FloatBuffer;
+import java.util.ArrayList;
 
+import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL15.GL_FLOAT;
 import static org.lwjgl.opengl.GL15.GL_LESS;
-import static org.lwjgl.opengl.GL15.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL15.glClearColor;
 import static org.lwjgl.opengl.GL15.glDepthFunc;
-import static org.lwjgl.opengl.GL15.glDrawArrays;
 import static org.lwjgl.opengl.GL15.glEnable;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
 
-public class RendererUnit {
+public class RendererUnit implements FileLoader{
 
-
-    private int vboId;
+    //REDUNDANT
+    /*private int vboId;
 
     private int vboId1;
 
     private int vboId2;
 
-    private int vaoId;
+    private int vaoId;*/
 
-    Matrix4f M = new Matrix4f();
-    Matrix4f P = new Matrix4f();
-    Matrix4f V = new Matrix4f();
-    private MyCube cube = new MyCube();
+    private Matrix4f P = new Matrix4f();
+    private Matrix4f V = new Matrix4f();
+    private Matrix4f M = new Matrix4f();
 
-    private ShaderProgram shaderProgram;
+    private ShaderProgram shader1;
+    private ShaderProgram shader2;
 
-    public RendererUnit() {
+    //Models declarations
+
+    private Model gun;
+    private Model cube;
+    private Model ground;
+    private Model skybox;
+//    private Model dragon;
+    private Model hudgun;
+    private Model enemy;
+    private Model heart;
+
+//    private Entity cubic;
+    private LiveEntity dragon;
+    private ArrayList<Enemy> enemiesList = new ArrayList<>();
+    private ArrayList<Entity> playersHealth = new ArrayList<>();
+    private Player player;
+
+    private CollisionUnit collisionUnit;
+    private Lights lights;
+
+
+    public RendererUnit(CollisionUnit collision, Player player) {
+        collisionUnit = collision;
+        this.player = player;
     }
 
     public void initBuffer() throws Exception {
 
-        shaderProgram = new ShaderProgram();
-        shaderProgram.createVertexShader("vertex.glsl");
-        shaderProgram.createFragmentShader("fragment.glsl");
-        shaderProgram.link();
+        shader1 = new ShaderProgram();
+        shader1.createVertexShader("vertex_simp.glsl");
+        shader1.createFragmentShader("fragment_simp.glsl");
+
+        shader2 = new ShaderProgram();
+        shader2.createVertexShader("vertex_simp.glsl");
+        shader2.createFragmentShader("fragment_simp.glsl");
+
+        shader1.link();
+        shader2.link();
+
+        lights = new Lights(shader1);
 
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
+        //Culling the faces
+        //glCullFace(GL_BACK);
+        //glEnable(GL_CULL_FACE);
+
+
+        gun = new Model(shader1, shader2, "handgun.obj", "guntex.png","gundiffuse.png","darksky.png");
+        hudgun = new Model(shader1, shader2, "handgun.obj", "guntex.png","gundiffuse.png","black.png");
+        cube = new Model(shader1, shader2,"cube.obj", "metal.png", "metaldiffuse.png","sky.png");
+        skybox = new Model(shader2, shader2,"skybox.obj", "skybox.png","black.png","black.png");
+        ground = new Model(shader1, shader2,"ground.obj", "bricks.png","bricksdiffuse.png","black.png");
+        enemy = new Model(shader1, shader2,"alien.obj", "alien_tex.png", "alien_diffuse.png","black.png");
+        heart = new Model(shader1, shader2, "heart.obj", "heart.png", "black.png", "black.png");
+
+
+        dragon =new LiveEntity(300,300, new Model(shader1, shader2,"dragon.obj",
+                        "dragon.png","dragondiffuse.png","black.png"), 1000,100);
+        collisionUnit.addToList(dragon);
+
+//        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
+        enemiesList.add(new Enemy(50,50,enemy,100,20));
+
+        for(Enemy i: enemiesList){
+            collisionUnit.addToList(i);
+        }
+
+        playersHealth.add(new Entity(-7.75f,-10,heart));
+        playersHealth.add(new Entity(-6.75f,-10,heart));
+        playersHealth.add(new Entity(-5.75f,-10,heart));
+        playersHealth.add(new Entity(-4.75f,-10,heart));
+
+
+
+        //REDUNTANT
+
         // Create a new Vertex Array Object in memory and select it (bind)
         // A VAO can have up to 16 attributes (VBO's) assigned to it by default
-        vaoId = GL30.glGenVertexArrays();
+       /* vaoId = GL30.glGenVertexArrays();
         glBindVertexArray(vaoId);
 
         // Create a new Vertex Buffer Object in memory and select it (bind)
@@ -72,8 +128,6 @@ public class RendererUnit {
         // Deselect (bind to 0) the VBO
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-
-
         vboId1 = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboId1);
         GL15.glBufferData(GL_ARRAY_BUFFER, cube.fbNormals, GL_STATIC_DRAW);
@@ -81,8 +135,6 @@ public class RendererUnit {
         GL20.glVertexAttribPointer(shaderProgram.a("normal"), 4, GL11.GL_FLOAT, false, 0, 0);
         // Deselect (bind to 0) the VBO
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
 
         vboId2 = glGenBuffers();
         glBindBuffer(GL_ARRAY_BUFFER, vboId2);
@@ -93,63 +145,188 @@ public class RendererUnit {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // Deselect (bind to 0) the VAO
-        glBindVertexArray(0);
+        glBindVertexArray(0);*/
 
     }
 
-
-    public void render(Window window, float angle_x, float angle_y) {
+    public void render(Window window, float angle_x, float angle_y, Vector3f camPos, Vector3f camFront, Vector3f camUp, Vector3f camRight, int mouseButton){
         clearBuffers();
-        glClearColor(0.0f, 0.3f, 0.4f, 0.0f);
-
+        glClearColor(0.6f, 0.2f, 0.5f, 1.0f);
+        glfwSetInputMode(window.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        int texNumber = 3;
 
         if (window.isResized()) {
             GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
             window.setResized(false);
         }
 
-
-        V.identity().lookAt(
-                new Vector3f(0,0,-5),
-                new Vector3f(0,0,0),
-                new Vector3f(0,1,0));
-        P.identity().perspective(50.0f*(float)Math.PI/180.0f, window.getScreenRatio(),0.01f,50.0f);
-        M.identity().rotate(angle_x,new Vector3f(0f,1.0f,0f),M).rotate(angle_y,new Vector3f(1.0f,0f,0f),M);
+        V.identity().lookAt(camPos, new Vector3f().set(camPos).add(camFront), camUp);
+        P.identity().perspective(50.0f*(float)Math.PI/180.0f, window.getScreenRatio(),0.01f,500000.0f);
 
 
+        //Binding the specific shader before drawing an object that uses it
+        //Drawing the lights and initializing them in the shader at the same time
+        lights.drawLights(P, V);
+        //glBindVertexArray(vaoId);
 
-        shaderProgram.bind();
 
-        glBindVertexArray(vaoId);
+        M.identity().translate(dragon.getPosX(),-9.50f,dragon.getPosZ()).rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f)).scale(20.0f,20.0f,20.0f);
+        dragon.getModel().draw(M,V,P,texNumber);
+        dragon.updateCurrentVectors(new Matrix4f().identity()
+                .translate(dragon.getPosX(),-9.50f,dragon.getPosZ())
+//                .rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f))
+                .scale(20.0f,20.0f,20.0f));
+        texNumber+=3;
 
 
-        FloatBuffer fbP = BufferUtils.createFloatBuffer(16);
-        FloatBuffer fbV = BufferUtils.createFloatBuffer(16);
-        FloatBuffer fbM = BufferUtils.createFloatBuffer(16);
+        M.identity().translate(5,10,6).rotate(angle_x,new Vector3f(0f,1.0f,0f)).rotate(angle_y,new Vector3f(1.0f,0f,0f));
+        Matrix4f Mtemp = M;
+        cube.draw(M,V,P,texNumber); //1
+        texNumber+=3;
 
-        GL20.glUniformMatrix4fv(shaderProgram.u("P"),false,P.get(fbP));
-        GL20.glUniformMatrix4fv(shaderProgram.u("V"),false,V.get(fbV));
-        GL20.glUniformMatrix4fv(shaderProgram.u("M"),false,M.get(fbM));
 
-        glEnableVertexAttribArray(shaderProgram.a("vertex"));
-        GL20.glVertexAttribPointer(shaderProgram.a("vertex"),4,GL_FLOAT,false,0,cube.fbVertex);
+        M = Mtemp;
+        M.translate(0.7f,4.8f,2.5f);
+        Mtemp = M;
+        M.scale(0.2f,0.2f,0.2f);
+        gun.draw(M, V, P, texNumber); //2
+        texNumber+=3;
 
-        glEnableVertexAttribArray(shaderProgram.a("normal"));
-        GL20.glVertexAttribPointer(shaderProgram.a("normal"),4,GL_FLOAT,false,0,cube.fbNormals);
 
-        glEnableVertexAttribArray(shaderProgram.a("color"));
-        GL20.glVertexAttribPointer(shaderProgram.a("color"),4,GL_FLOAT,false,0,cube.fbColors);
+        M = Mtemp;
+        M.translate(-12.0f,0.0f,71.0f).rotate(3.14f, new Vector3f(0.0f,1.0f,0.0f));
+        gun.draw(M,V,P, texNumber); //2
+        texNumber+=3;
 
-        glDrawArrays(GL_TRIANGLES, 0, cube.myCubeVertexCount);
 
-        glDisableVertexAttribArray(shaderProgram.a("vertex"));
-        glDisableVertexAttribArray(shaderProgram.a("normal"));
-        glDisableVertexAttribArray(shaderProgram.a("color"));
+        // UWAGA !!! camPos.x == player.x tak samo z "Z"
 
-        glBindVertexArray(0);
+        for(Enemy i: enemiesList){
+            float oldX = i.getPosX() , oldZ = i.getPosZ();
+//            i.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
+            collisionUnit.abandonMovingChangesWhenDetectedCollision(i,oldX,oldZ);
 
-        shaderProgram.unbind();
+            //todo zrobic umieranie jednostek
+//            if (i.checkIfEntityDied())i.move(new Random().nextInt(500),new Random().nextInt(500));
 
+
+            M.identity().translate(i.getPosX(),1.0f,i.getPosZ())
+                    .rotate(-3.14f/2,new Vector3f(0.0f,1.0f,0.0f))
+                    .scale(1.3f,1.3f,1.3f);
+            i.getModel().draw(M,V,P, texNumber); //2
+
+
+            //            System.out.println("++++++++PRZED EDYCJA");
+//            System.out.println(i.getDefaultMinCollisionBox());
+//            System.out.println(i.getDefaultMaxCollisionBox());
+            i.updateCurrentVectors((new Matrix4f().identity()
+                    .translate(i.getPosX(),0.0f,i.getPosZ())
+//                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
+                    .scale(1.3f) //todo poprawic collision boxy
+            ));
+//
+//            System.out.println("++++++++PO EDYCJI");
+//            i.debugVectors();
+//            System.out.println("POZYCJA PLAYERA ----->>>>>"+ camPos);
+
+        }
+
+
+
+        // GROUND AND THE SKYBOX DRAWN AT THE END
+        M.identity().translate(0,0,0);
+        M.scale(60.0f,1.0f,60.0f);
+        ground.draw(M,V,P, texNumber); //1
+        texNumber+=3;
+
+
+        M.identity().rotate(3.14f,new Vector3f(0.0f,0.0f,1.0f)).translate(0.0f,-6000.0f,0.0f).scale(15000.0f,15000.0f,15000.0f);
+        skybox.draw(M,V,P, texNumber); //1
+        texNumber+=3;
+
+
+
+        Matrix4f oldV = new Matrix4f().set(V);
+
+        // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
+        // Those parts absolutely have to be put at the end, because we are completely clearing the View Matrix
+        M.identity();
+        V.identity().translate(-1.75f,-8.0f,-12.0f).rotate(-3.14f, new Vector3f(0.0f,1.0f,0.0f));//.rotate(-3.14f/3, new Vector3f(1.0f,0.0f,0.0f));
+        V.scale(0.3f,0.3f,0.3f);
+        // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
+        glClear(GL_DEPTH_BUFFER_BIT);
+        if(mouseButton == GLFW_MOUSE_BUTTON_LEFT){
+            V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
+
+
+            for (Enemy enemy: enemiesList){
+
+                Vector3f cameraFront = new Vector3f();
+                camRight.cross(camUp,cameraFront);
+                System.out.println(cameraFront);
+
+                Vector3f toPlayer = new Vector3f();
+                toPlayer.set(player.getPosX() - enemy.getPosX(),0,player.getPosZ() - enemy.getPosZ());
+                System.out.println(toPlayer);
+
+                System.out.println("WYNIK    " +    toPlayer.dot(cameraFront));
+//                PickingRay pickingRay = new PickingRay();
+//                DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
+//                DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
+//                glfwGetCursorPos(window.getWindowHandle(), xBuffer, yBuffer);
+//                float mouseXOnScreen = (float) xBuffer.get(0);
+//                float mouseYOnScreen = (float) yBuffer.get(0);
+
+//                System.out.println("Distance 2D:   "+ Utils.distance2DBetween2Points(enemy.getPosX(),enemy.getPosZ(),
+//                        player.getPosX(),player.getPosZ()));
+//
+//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(enemy.getPosX(),1,enemy.getPosZ(),
+//                        player.getPosX(),camPos.y,player.getPosZ()));
+
+//                System.out.println(camPos);
+//
+//
+//
+//                pickingRay.calcuateScreenVerticallyAndHorizontally(new Vector3f().set(camPos).add(camFront),camPos,camUp,
+//                        50,100,window.getWidth()/window.getHeight());
+//                pickingRay.picking(mouseXOnScreen,mouseYOnScreen,camPos,window.getWidth(),window.getHeight());
+//                System.out.println(pickingRay.isIntersectingThePoint(enemy.getPosX(),4,enemy.getPosZ()));
+//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(pickingRay.getClickPosInWorld().x,
+//                        pickingRay.getClickPosInWorld().y,pickingRay.getClickPosInWorld().z,
+//                        player.getPosX(),camPos.y,player.getPosZ()));
+
+                //todo zakomentowac
+//                System.out.println(pickingRay.getClickPosInWorld());
+//                System.out.println(pickingRay.getDirection());
+//                float [] data = new float[3];
+//                data[0]=enemy.getPosX();
+//                data[1]=1;
+//                data[0]=enemy.getPosZ();
+//
+//                pickingRay.intersectionWithXyPlane(data);
+//                System.out.println("To jest wynik    "+pickingRay.getClickPosInWorld());
+            }
+
+
+
+        }
+        hudgun.draw(M,V,P,texNumber);
+        texNumber+=3;
+
+
+
+        M.identity();
+        for (int i=0;i< player.getHealth()/25;i++){
+            Entity e = playersHealth.get(i);
+            V.identity().translate(e.getPosX(),-4.5f,e.getPosZ());
+            V.scale(0.25f,0.25f,0.25f);
+            e.getModel().draw(M,V,P,texNumber);
+        }
+
+
+
+
+        //glBindVertexArray(0);
 
     }
 
@@ -158,18 +335,24 @@ public class RendererUnit {
     }
 
     public void cleanup() {
-        if (shaderProgram != null) {
-            shaderProgram.cleanup();
+        if (shader1 != null) {
+            shader1.cleanup();
         }
+        if (shader2 != null) {
+            shader2.cleanup();
+        }
+        for (int i = 0; i < 100; i++)
+            glDisable(GL_TEXTURE0+i);
 
         glDisableVertexAttribArray(0);
 
+        //REDUNDANT
         // Delete the VBO
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glDeleteBuffers(vboId);
+        /*glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glDeleteBuffers(vboId);*/
 
         // Delete the VAO
-        glBindVertexArray(0);
-        glDeleteVertexArrays(vaoId);
+        /*glBindVertexArray(0);
+        glDeleteVertexArrays(vaoId);*/
     }
 }
