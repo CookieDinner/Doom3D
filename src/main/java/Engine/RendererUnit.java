@@ -6,7 +6,6 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -209,7 +208,7 @@ public class RendererUnit implements FileLoader{
 
         for(Enemy enemy: enemiesList){
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
-            enemy.moveInPlayerDirection(player,0.0f);
+            enemy.moveInPlayerDirection(player,0.4f);
 
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 

@@ -53,4 +53,9 @@ public class Player extends LiveEntity{
         super.receiveDamage(damage);
         canBeHurt = false;
     }
+
+    public void healPlayer(){
+        setHealth(getHealth()+25);
+        if (getHealth()>100) setHealth(100);
+    }
 }

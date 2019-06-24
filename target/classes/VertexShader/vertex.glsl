@@ -74,7 +74,7 @@ void main(void) {
 
 
     float distance = length (relcam);
-    visibility = clamp(exp(-pow((distance*0.0007f),1.1f)),0.0f,1.0f);
+    visibility = clamp(exp(-pow((distance*0.006f),1.1f)),0.0f,1.0f);
 
     //ic=vec4(ld.rgb*kd.rgb*nl+ks.rgb*ls.rgb*rv,kd.a); //dodana część Phonga
     ic=color;

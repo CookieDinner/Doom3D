@@ -26,7 +26,7 @@ public class Enemy extends LiveEntity {
 
     public void moveInPlayerDirection(Player player, float distanceInOneStep){
 
-        if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 200){
+        if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 300){
             if (getPosX() > player.getPosX()) setPosX(getPosX()-distanceInOneStep);
             else setPosX(getPosX()+distanceInOneStep);
             if (getPosZ() > player.getPosZ()) setPosZ(getPosZ()-distanceInOneStep);
