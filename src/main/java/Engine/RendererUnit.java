@@ -201,7 +201,7 @@ public class RendererUnit implements FileLoader{
 
         for(Enemy enemy: enemiesList){
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
-            enemy.moveInPlayerDirection(camPos.x,camPos.z,0.5f);
+            enemy.moveInPlayerDirection(player,0.5f);
 
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
@@ -275,47 +275,6 @@ public class RendererUnit implements FileLoader{
                 }
 
                 i++;
-
-//                System.out.println("DISTANCE      "+ distance);
-//                System.out.println("WYNIK       " +  vectorsMultiplication);
-//                System.out.println(player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication));
-                //todo zakomentowac
-
-//                PickingRay pickingRay = new PickingRay();
-//                DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
-//                DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
-//                glfwGetCursorPos(window.getWindowHandle(), xBuffer, yBuffer);
-//                float mouseXOnScreen = (float) xBuffer.get(0);
-//                float mouseYOnScreen = (float) yBuffer.get(0);
-
-//                System.out.println("Distance 2D:   "+ Utils.distance2DBetween2Points(enemy.getPosX(),enemy.getPosZ(),
-//                        player.getPosX(),player.getPosZ()));
-//
-//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(enemy.getPosX(),1,enemy.getPosZ(),
-//                        player.getPosX(),camPos.y,player.getPosZ()));
-
-//                System.out.println(camPos);
-//
-//
-//
-//                pickingRay.calcuateScreenVerticallyAndHorizontally(new Vector3f().set(camPos).add(camFront),camPos,camUp,
-//                        50,100,window.getWidth()/window.getHeight());
-//                pickingRay.picking(mouseXOnScreen,mouseYOnScreen,camPos,window.getWidth(),window.getHeight());
-//                System.out.println(pickingRay.isIntersectingThePoint(enemy.getPosX(),4,enemy.getPosZ()));
-//                System.out.println("Distance 3D:   "+ Utils.distance3DBetween2Points(pickingRay.getClickPosInWorld().x,
-//                        pickingRay.getClickPosInWorld().y,pickingRay.getClickPosInWorld().z,
-//                        player.getPosX(),camPos.y,player.getPosZ()));
-
-                //todo zakomentowac
-//                System.out.println(pickingRay.getClickPosInWorld());
-//                System.out.println(pickingRay.getDirection());
-//                float [] data = new float[3];
-//                data[0]=enemy.getPosX();
-//                data[1]=1;
-//                data[0]=enemy.getPosZ();
-//
-//                pickingRay.intersectionWithXyPlane(data);
-//                System.out.println("To jest wynik    "+pickingRay.getClickPosInWorld());
             }
 
             if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {

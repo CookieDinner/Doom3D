@@ -213,12 +213,11 @@ public class Doom3D implements GameLogicInterface {
         if (!player.isCanShoot() && delayForShootingEnemies == upperBoundOfDelay) {
             player.setCanShoot(true);
             player.setShowShootAnimation(true);
-            System.out.println("LOLLLLL");
             delayForShootingEnemies = 0;
         }
 
         if (!player.isCanShoot() && delayForShootingEnemies < upperBoundOfDelay) delayForShootingEnemies++;
-        if (delayForShootingEnemies == upperBoundOfDelay/3) player.setShowShootAnimation(false);
+        if (delayForShootingEnemies == upperBoundOfDelay/2) player.setShowShootAnimation(false);
 
         rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp, camRight, mouseButton);
     }

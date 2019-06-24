@@ -1,5 +1,6 @@
 package Entities;
 
+import Engine.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
@@ -23,11 +24,15 @@ public class Enemy extends LiveEntity {
     }
 
 
-    public void moveInPlayerDirection(float playerX, float playerZ, float distanceInOneStep){
-        if (getPosX() > playerX) setPosX(getPosX()-distanceInOneStep);
-        else setPosX(getPosX()+distanceInOneStep);
-        if (getPosZ() > playerZ) setPosZ(getPosZ()-distanceInOneStep);
-        else setPosZ(getPosZ()+distanceInOneStep);
+    public void moveInPlayerDirection(Player player, float distanceInOneStep){
+
+        if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 200){
+            if (getPosX() > player.getPosX()) setPosX(getPosX()-distanceInOneStep);
+            else setPosX(getPosX()+distanceInOneStep);
+            if (getPosZ() > player.getPosZ()) setPosZ(getPosZ()-distanceInOneStep);
+            else setPosZ(getPosZ()+distanceInOneStep);
+        }
+
     }
 
 
