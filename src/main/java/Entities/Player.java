@@ -48,9 +48,6 @@ public class Player extends LiveEntity{
         return false;
     }
 
-//    public boolean isInRange(float value, float range){
-//    }
-
     @Override
     public void receiveDamage(int damage) {
         super.receiveDamage(damage);
@@ -60,5 +57,9 @@ public class Player extends LiveEntity{
     public void healPlayer(){
         setHealth(getHealth()+25);
         if (getHealth()>100) setHealth(100);
+    }
+
+    public void debugPosition(){
+        System.out.println("TO SA POZYCJE X:  "+ getPosX() + "   oraz Z:    "+ getPosZ());
     }
 }

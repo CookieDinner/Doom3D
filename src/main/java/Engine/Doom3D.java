@@ -180,7 +180,7 @@ public class Doom3D implements GameLogicInterface {
 
         player.move(camPos.x,camPos.z);
         collisionUnit.abandonMovingChangesWhenDetectedCollision(player,camPosBeforeChange.x,camPosBeforeChange.z);
-        //todo byc moze tylko najblizszt
+        //todo byc moze tylko najblizszy bo obecnie pierwszy z listy
 
 
         if (delayForHurtingPLayer == upperBoundOfDelay && !player.isCanBeHurt()) {

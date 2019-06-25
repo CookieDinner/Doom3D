@@ -103,8 +103,18 @@ public class RendererUnit implements FileLoader{
 
 
 
-//        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
-        enemiesList.add(new Enemy(50,50,enemy,100,20));
+        enemiesList.add(new Enemy(42,248,enemy,100,20));
+        enemiesList.add(new Enemy(243,270,enemy,100,20));
+        enemiesList.add(new Enemy(446,84,enemy,100,20));
+        enemiesList.add(new Enemy(430,465,enemy,100,20));
+        enemiesList.add(new Enemy(87,700,enemy,100,20));
+        enemiesList.add(new Enemy(261,755,enemy,100,20));
+        enemiesList.add(new Enemy(700,1500,enemy,100,20));
+        enemiesList.add(new Enemy(582,1500,enemy,100,20));
+        enemiesList.add(new Enemy(466,1500,enemy,100,20));
+        enemiesList.add(new Enemy(350,1500,enemy,100,20));
+
+
 
         for(Enemy i: enemiesList){
             collisionUnit.addToList(i);
@@ -212,12 +222,14 @@ public class RendererUnit implements FileLoader{
             float scaleEnemiesSize = 1.5f;
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
 
-            //todo Movine Enemies
-//            enemy.moveInPlayerDirection(player,0.4f);
+            //todo Moving Enemies
+            enemy.moveInPlayerDirection(player,0.4f);
 
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
             enemy.checkIfEntityDied(100);
+            enemy.respawnIfTimeExceeded();
+
             enemy.setToPlayerVector(player);
 
             M.identity()
@@ -227,21 +239,11 @@ public class RendererUnit implements FileLoader{
             enemy.getModel().draw(M,V,P, texNumber); //2
 
 
-
-            //            System.out.println("++++++++PRZED EDYCJA");
-//            System.out.println(enemy.getDefaultMinCollisionBox());
-//            System.out.println(enemy.getDefaultMaxCollisionBox());
-
             enemy.updateCurrentVectors((new Matrix4f().identity()
                     .translate(enemy.getPosX(),0.0f,enemy.getPosZ())
 //                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
                     .scale(scaleEnemiesSize) //todo poprawic collision boxy
             ));
-//
-//            System.out.println("++++++++PO EDYCJI");
-//            enemy.debugVectors();
-//            System.out.println("POZYCJA PLAYERA ----->>>>>"+ camPos);
-
         }
 
 
@@ -299,11 +301,12 @@ public class RendererUnit implements FileLoader{
                 i++;
             }
 
-            player.setCanShoot(false);
-
             if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {
-//                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+                System.out.println(enemiesList.get(whichEnemyIsTheClosest).getHealth());
             }
+
+            player.setCanShoot(false);
 
         }
         hudgun.draw(M,V,P,texNumber);

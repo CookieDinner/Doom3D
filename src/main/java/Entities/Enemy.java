@@ -8,11 +8,24 @@ import org.joml.Vector3f;
 @Getter
 @Setter
 public class Enemy extends LiveEntity {
+    private Vector3f toPlayerVector;
+    private float spawnPointX;
+    private float spawnPointZ;
+    private boolean died;
+    private int respawnDelay;
+    private int respawnUpperBound;
+
+
+
     public Enemy(float posX, float posZ, Model model, int health, int damage) {
         super(posX, posZ, model, health, damage);
+        spawnPointX = posX;
+        spawnPointZ = posZ;
+        died = false;
+        respawnUpperBound = 1800;
+        respawnDelay = 0;
     }
 
-    private Vector3f toPlayerVector;
 
     public Vector3f getToPlayerVector() {
         return toPlayerVector;
@@ -35,5 +48,24 @@ public class Enemy extends LiveEntity {
 
     }
 
+    public void respawnIfTimeExceeded(){
+        if (died){
+            respawnDelay++;
+            if (respawnDelay==respawnUpperBound){
+                move(spawnPointX,spawnPointZ);
+                died = false;
+                respawnDelay = 0;
+            }
+        }
+    }
 
+    @Override
+    public boolean checkIfEntityDied(int maxHealth) {
+        boolean result = super.checkIfEntityDied(maxHealth);
+        if (result) {
+            move(-1000,-1000);
+            died=true;
+        }
+        return result;
+    }
 }

@@ -26,6 +26,5 @@ public class LiveEntity extends Entity {
 
     public void receiveDamage(int damage){
         setHealth(getHealth()-damage);
-//        System.out.println(getHealth()); //todo zakomentowac
     }
 }
