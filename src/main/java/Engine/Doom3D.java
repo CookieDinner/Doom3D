@@ -180,6 +180,8 @@ public class Doom3D implements GameLogicInterface {
 
         player.move(camPos.x,camPos.z);
         collisionUnit.abandonMovingChangesWhenDetectedCollision(player,camPosBeforeChange.x,camPosBeforeChange.z);
+        //todo byc moze tylko najblizszt
+
 
         if (delayForHurtingPLayer == upperBoundOfDelay && !player.isCanBeHurt()) {
             player.setCanBeHurt(true);
@@ -221,7 +223,7 @@ public class Doom3D implements GameLogicInterface {
         }
 
         if (!player.isCanShoot() && delayForShootingEnemies < upperBoundOfDelay) delayForShootingEnemies++;
-        if (delayForShootingEnemies == upperBoundOfDelay/2) player.setShowShootAnimation(false);
+        if (delayForShootingEnemies == upperBoundOfDelay/4) player.setShowShootAnimation(false);
 
         rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp, camRight, mouseButton);
     }

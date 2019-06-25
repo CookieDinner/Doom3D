@@ -267,7 +267,7 @@ public class RendererUnit implements FileLoader{
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        if(player.isShowShootAnimation() && mouseButton == GLFW_MOUSE_BUTTON_LEFT){
+        if(mouseButton == GLFW_MOUSE_BUTTON_LEFT && player.isShowShootAnimation() ){
             V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
             float theClosestEnemy = Float.MAX_VALUE;
             int whichEnemyIsTheClosest=-1, i=0;
@@ -279,12 +279,16 @@ public class RendererUnit implements FileLoader{
                         player.getPosX(),player.getPosZ());
 
                 float vectorsMultiplication = enemy.getToPlayerVector().dot(player.getLookAheadVector());
-                System.out.println(vectorsMultiplication);
-                System.out.println(1 - Math.atan(1/distance));
 
+//                System.out.println(vectorsMultiplication);
+//                System.out.println(1 - Math.atan(1/distance));
 //                System.out.println(Math.atan2(enemy.getToPlayerVector().x,enemy.getToPlayerVector().z));
 
+
+                //old version of shooting
 //                if (player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication)){
+
+                //new version of shooting
                 if (-(1 - Math.atan(1/distance/2)) > vectorsMultiplication){
                     if (theClosestEnemy>distance){
                         theClosestEnemy = distance;
@@ -295,9 +299,10 @@ public class RendererUnit implements FileLoader{
                 i++;
             }
 
+            player.setCanShoot(false);
+
             if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {
 //                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
-                player.setCanShoot(false);
             }
 
         }
