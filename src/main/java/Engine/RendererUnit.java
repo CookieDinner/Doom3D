@@ -6,8 +6,6 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -65,6 +63,7 @@ public class RendererUnit implements FileLoader{
 
     private CollisionUnit collisionUnit;
     private Lights lights;
+    private int noSound=0;
 
 
     public RendererUnit(CollisionUnit collision, Player player) {
@@ -293,6 +292,8 @@ public class RendererUnit implements FileLoader{
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
 
+
+        if (noSound<10) noSound++;
         if(mouseButton == GLFW_MOUSE_BUTTON_LEFT && player.isShowShootAnimation() ){
 
             float theClosestEnemy = Float.MAX_VALUE;
@@ -336,6 +337,11 @@ public class RendererUnit implements FileLoader{
             }
 
             player.setCanShoot(false);
+            if (noSound == 10) {
+                new Thread(new Sound("gun_shot.wav",18,0)).start();
+                //            new Sound("gun_shot.wav",15,0).playWAV();
+                noSound=0;
+            }
         }
 
         M.identity();
@@ -348,8 +354,9 @@ public class RendererUnit implements FileLoader{
             V.identity().translate(-0.032f,-1.82f,-9.0f);
             shot.draw(M,V,P,texNumber);
         }
-        else
+        else{
             hudgun.draw(M,V,P,texNumber);
+        }
 
         texNumber+=3;
 

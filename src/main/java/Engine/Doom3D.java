@@ -1,6 +1,7 @@
 package Engine;
 
 import Entities.Player;
+import Entities.Sound;
 import lombok.Setter;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
@@ -45,6 +46,7 @@ public class Doom3D implements GameLogicInterface {
 
     private final RendererUnit rendererUnit;
     private final CollisionUnit collisionUnit;
+    private int noSound =0;
 
     public Doom3D() {
         player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,30);
@@ -188,7 +190,18 @@ public class Doom3D implements GameLogicInterface {
             delayForHurtingPLayer = 0;
         }
 
+
+
+        if (noSound<10) noSound++;
         if (player.checkIfEntityDied(100,null,null) || window.isKeyPressed(GLFW_KEY_P)){
+
+            if (noSound == 10) {
+                new Thread(new Sound("player_death1.wav",0,0)).start();
+//              new Sound("player_death1.wav",0,0).playWAV();
+                noSound=0;
+            }
+
+
             player.move(spawnPoint.x, spawnPoint.z);
             yaw = 0.0f;
             camFront.set(1.0f,-0.09f,0.0f);

@@ -1,13 +1,11 @@
 package Entities;
 
-import Engine.ShaderProgram;
 import Engine.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -77,6 +75,8 @@ public class Enemy extends LiveEntity {
             deathspots.add(new Entity(getPosX(),getPosZ(),splat));
             move(-1000,-1000);
             died=true;
+//            new Thread(new Sound("enemy_death1.wav",0,2000)).start();
+//            new Sound("enemy_death1.wav",0,1000).playWAV();
         }
         return result;
     }
