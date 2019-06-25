@@ -28,6 +28,7 @@ public class CollisionUnit {
     }
 
     public Vector2f checkIfCollisionExistWithAnyEntity(Entity entity){
+
         for (Entity entity_to_check: collisionEntitiesList){
 
             if (!entity.equals(entity_to_check)){

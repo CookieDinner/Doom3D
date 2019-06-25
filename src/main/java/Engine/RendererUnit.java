@@ -174,6 +174,7 @@ public class RendererUnit implements FileLoader{
     }
 
     public void render(Window window, float angle_x, float angle_y, Vector3f camPos, Vector3f camFront, Vector3f camUp, Vector3f camRight, int mouseButton){
+
         clearBuffers();
         glClearColor(0.6f, 0.2f, 0.5f, 1.0f);
         glfwSetInputMode(window.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -312,7 +313,7 @@ public class RendererUnit implements FileLoader{
                 M.identity().translate(hurt.getPosX(),7.0f,hurt.getPosZ())
                         .scale(1.2f,1.2f,1.2f);
                 blood.draw(M,V,P,1);
-                System.out.println(enemiesList.get(whichEnemyIsTheClosest).getHealth());
+//                System.out.println(enemiesList.get(whichEnemyIsTheClosest).getHealth());
             }
 
             player.setCanShoot(false);

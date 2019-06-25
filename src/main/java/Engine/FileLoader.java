@@ -13,7 +13,7 @@ public interface FileLoader {
 
         filePath += subfolder+fileName;
 
-        System.out.println(filePath);//todo usunac
+//        System.out.println(filePath);//todo usunac
 
         return filePath;
     }
