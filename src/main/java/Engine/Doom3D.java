@@ -30,12 +30,6 @@ public class Doom3D implements GameLogicInterface {
     private double yaw, pitch;
 
     private Player player;
-    private int upperBoundOfDelay = 10;
-    private int delayForHurtingPLayer;
-    private int delayForShootingEnemies;
-
-    private boolean first = true;
-
     Vector3f spawnPoint = new Vector3f(-35.0f, 17.0f, 5.0f);
     Vector3f camPos = new Vector3f().set(spawnPoint);
     Vector3f camFront = new Vector3f(1.0f, -0.09f, 0.0f);
@@ -47,6 +41,12 @@ public class Doom3D implements GameLogicInterface {
     private final RendererUnit rendererUnit;
     private final CollisionUnit collisionUnit;
     private int noSound =0;
+    private int upperBoundOfDelay = 10;
+    private int delayForHurtingPLayer;
+    private int delayForShootingEnemies;
+    private int counterForRotating =0;
+    private boolean first = true;
+    private int counterBound =60;
 
     public Doom3D() {
         player = new Player(camPos.x,camPos.z,null,-10,10,-10,10,100,30);
@@ -238,7 +238,10 @@ public class Doom3D implements GameLogicInterface {
         if (!player.isCanShoot() && delayForShootingEnemies < upperBoundOfDelay) delayForShootingEnemies++;
         if (delayForShootingEnemies == upperBoundOfDelay/4) player.setShowShootAnimation(false);
 
-        rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp, camRight, mouseButton);
+
+        rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp, camRight, mouseButton, counterForRotating, counterBound);
+        if(counterForRotating<counterBound) counterForRotating++;
+        else if (counterForRotating==counterBound) counterForRotating=0;
     }
 
     @Override

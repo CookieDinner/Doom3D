@@ -54,6 +54,7 @@ public class RendererUnit implements FileLoader{
     private ArrayList<Enemy> enemiesList = new ArrayList<>();
     private ArrayList<Entity> playersHealth = new ArrayList<>();
     private Player player;
+    private ArrayList<BonusHealthItem> bonusHearts = new ArrayList<>();
 
     private CollisionUnit collisionUnit;
     private Lights lights;
@@ -108,6 +109,11 @@ public class RendererUnit implements FileLoader{
         /*dragon =new LiveEntity(300,300, new Model(shader1, shader2,"dragon.obj",
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
         collisionUnit.addToList(dragon);*/
+
+        bonusHearts.add(new BonusHealthItem(107,315,heart));
+        bonusHearts.add(new BonusHealthItem(110,550,heart));
+        bonusHearts.add(new BonusHealthItem(511,682,heart));
+
 
 
 
@@ -173,17 +179,22 @@ public class RendererUnit implements FileLoader{
 
     }
 
-    public void render(Window window, float angle_x, float angle_y, Vector3f camPos, Vector3f camFront, Vector3f camUp, Vector3f camRight, int mouseButton){
+    public void render(Window window, float angle_x, float angle_y, Vector3f camPos, Vector3f camFront,
+                       Vector3f camUp, Vector3f camRight, int mouseButton, int counter, int counterBound){
 
         clearBuffers();
         glClearColor(0.6f, 0.2f, 0.5f, 1.0f);
         glfwSetInputMode(window.getWindowHandle(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
         int texNumber = 3;
 
         if (window.isResized()) {
             GL11.glViewport(0, 0, window.getWidth(), window.getHeight());
             window.setResized(false);
         }
+
+//        player.debugPosition();
 
         V.identity().lookAt(camPos, new Vector3f().set(camPos).add(camFront), camUp);
         P.identity().perspective(50.0f*(float)Math.PI/180.0f, window.getScreenRatio(),0.01f,500000.0f);
@@ -232,7 +243,7 @@ public class RendererUnit implements FileLoader{
 
             enemy.setToPlayerVector(player);
             enemy.updateDistanceToPLayer(player);
-            enemy.moveInPlayerDirection(player,1.2f);
+//            enemy.moveInPlayerDirection(player,1.2f);
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
             enemy.checkIfEntityDied(90, deathspots, splat);
@@ -251,8 +262,30 @@ public class RendererUnit implements FileLoader{
                     .scale(scaleEnemiesSize) //todo poprawic collision boxy na promieniowe
             ));
             enemy.updateDistanceToPLayer(player);
-
         }
+        texNumber+=3;
+
+
+        int jumping = counter;
+        if (jumping> counterBound/2) jumping -= (jumping-counterBound/2)*2;
+
+        for (BonusHealthItem bonus: bonusHearts){
+            if (!bonus.isEnable()) bonus.respawnIfTimeExceeded();
+            else{
+                bonus.updateDistanceToPLayer(player);
+                bonus.HealPlayerIfInsideArea(player,10);
+                if (bonus.isEnable()){
+                    M.identity()
+                            .translate(bonus.getPosX(),0.2f *jumping + 1,bonus.getPosZ())
+                            .rotate((3.14f/counterBound)*counter,0,1,0)
+                            .scale(3f);
+                    bonus.getModel().draw(M,V,P, texNumber); //2
+                }
+            }
+        }
+        texNumber+=3;
+
+
 
 
 
