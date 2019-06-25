@@ -1,6 +1,5 @@
 package Engine;
 
-import Entities.Enemy;
 import Entities.Entity;
 import Entities.Player;
 import lombok.Getter;
@@ -17,7 +16,7 @@ public class CollisionUnit {
     public CollisionUnit(Player player) {
         collisionEntitiesList = new ArrayList();
         this.player = player;
-        collisionEntitiesList.add(this.player);
+//        collisionEntitiesList.add(this.player);
     }
 
     public void addToList(Entity entity){
@@ -32,14 +31,8 @@ public class CollisionUnit {
         for (Entity entity_to_check: collisionEntitiesList){
 
             if (!entity.equals(entity_to_check)){
-                if(Utils.checkCollisionWithObject(entity,entity_to_check)){
-                    if ( player.isCanBeHurt() && ( entity.equals(player) && entity_to_check instanceof Enemy)
-//                            ||(entity_to_check.equals(player) && entity instanceof Enemy)
-                    ){
-                        player.receiveDamage(((Enemy) entity_to_check).getDamage());
-                    }
+                if(Utils.checkCollisionWithObject(entity,entity_to_check))
                     return Utils.ceilOrFloorTheResult(entity,entity_to_check);
-                }
             }
 
         }
@@ -60,7 +53,7 @@ public class CollisionUnit {
                 oldZCoordinate = oldZCoordinate-1;
             else oldZCoordinate = oldZCoordinate+1;
 
-                entity.move(oldXCoordinate,oldZCoordinate);
+            entity.move(oldXCoordinate,oldZCoordinate);
         }
     }
 

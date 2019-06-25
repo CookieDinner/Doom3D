@@ -31,22 +31,6 @@ public class Player extends LiveEntity{
         lookAheadVector.normalize();
     }
 
-    public boolean isEnemyInsideGunViewfinder(float distance, float value){
-
-        //Wspołczynniki wyznaczone za pomocą regresji liniowej
-
-        float y;
-
-        if (distance<30)
-            y=-0.9600f;
-        else if (distance<140)
-            y = -0.00015f * distance -0.97968f;
-        else
-            y = -0.00002f * distance -0.99501f;
-
-        if (value< y) return true;
-        return false;
-    }
 
     @Override
     public void receiveDamage(int damage) {

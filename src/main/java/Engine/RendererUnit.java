@@ -42,7 +42,6 @@ public class RendererUnit implements FileLoader{
     private Model cube;
     private Model ground;
     private Model skybox;
-//    private Model dragon;
     private Model hudgun;
     private Model enemy;
     private Model heart;
@@ -50,12 +49,7 @@ public class RendererUnit implements FileLoader{
     private Model blood;
     private Model splat;
     private ArrayList<Entity> deathspots = new ArrayList<>();
-
     private Map map = new Map();
-
-    //private Entity wall;
-
-//    private Entity cubic;
     private LiveEntity dragon;
     private ArrayList<Enemy> enemiesList = new ArrayList<>();
     private ArrayList<Entity> playersHealth = new ArrayList<>();
@@ -213,11 +207,10 @@ public class RendererUnit implements FileLoader{
 
 
         M.identity().translate(5,10,6).rotate(angle_x,new Vector3f(0f,1.0f,0f)).rotate(angle_y,new Vector3f(1.0f,0f,0f));
-        Matrix4f Mtemp = M;
         cube.draw(M,V,P,texNumber); //1
         texNumber+=3;
 
-
+        Matrix4f Mtemp = M;
         M = Mtemp;
         M.translate(0.7f,4.8f,2.5f);
         Mtemp = M;
@@ -236,17 +229,13 @@ public class RendererUnit implements FileLoader{
             float scaleEnemiesSize = 1.5f;
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
 
-            //todo Moving Enemies
             enemy.setToPlayerVector(player);
-            //STEP
+            enemy.updateDistanceToPLayer(player);
             enemy.moveInPlayerDirection(player,1.2f);
-
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
             enemy.checkIfEntityDied(90, deathspots, splat);
             enemy.respawnIfTimeExceeded();
-
-
 
             M.identity()
                     .translate(enemy.getPosX(),1.0f,enemy.getPosZ())
@@ -260,6 +249,8 @@ public class RendererUnit implements FileLoader{
 //                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
                     .scale(scaleEnemiesSize) //todo poprawic collision boxy na promieniowe
             ));
+            enemy.updateDistanceToPLayer(player);
+
         }
 
 
@@ -287,8 +278,6 @@ public class RendererUnit implements FileLoader{
         // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
         // Those parts absolutely have to be put at the end, because we are completely clearing the View Matrix
 
-
-
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -296,33 +285,23 @@ public class RendererUnit implements FileLoader{
         if (noSound<10) noSound++;
         if(mouseButton == GLFW_MOUSE_BUTTON_LEFT && player.isShowShootAnimation() ){
 
-            float theClosestEnemy = Float.MAX_VALUE;
+            float theClosestEnemyDistance = Float.MAX_VALUE;
             int whichEnemyIsTheClosest=-1, i=0;
 
             for (Enemy enemy: enemiesList){
 
 
-                float distance = Utils.distance2DBetween2Points(enemy.getPosX(),enemy.getPosZ(),
-                        player.getPosX(),player.getPosZ());
-
+                float distance = enemy.getDistanceToPlayer();
                 float vectorsMultiplication = enemy.getToPlayerVector().dot(player.getLookAheadVector());
 
-//                System.out.println(vectorsMultiplication);
-//                System.out.println(1 - Math.atan(1/distance));
-//                System.out.println(Math.atan2(enemy.getToPlayerVector().x,enemy.getToPlayerVector().z));
-
-
-                //old version of shooting
-//                if (player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication)){
 
                 //new version of shooting
                 if (-(1 - Math.atan(1/distance/2)) > vectorsMultiplication){
-                    if (theClosestEnemy>distance){
-                        theClosestEnemy = distance;
+                    if (theClosestEnemyDistance>distance){
+                        theClosestEnemyDistance = distance;
                         whichEnemyIsTheClosest = i;
                     }
                 }
-
                 i++;
             }
 
@@ -368,9 +347,6 @@ public class RendererUnit implements FileLoader{
             V.scale(0.25f,0.25f,0.25f);
             heart.getModel().draw(M,V,P,texNumber);
         }
-
-
-
 
 
         //glBindVertexArray(0);

@@ -16,6 +16,7 @@ public class Enemy extends LiveEntity {
     private boolean died;
     private int respawnDelay;
     private int respawnUpperBound;
+    private float distanceToPlayer = Float.MAX_VALUE;
 
 
 
@@ -41,18 +42,21 @@ public class Enemy extends LiveEntity {
 
     public void moveInPlayerDirection(Player player, float distanceInOneStep){
 
-        /*if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 250){
-            if (getPosX() > player.getPosX()) setPosX(getPosX()-distanceInOneStep);
-            else setPosX(getPosX()+distanceInOneStep);
-            if (getPosZ() > player.getPosZ()) setPosZ(getPosZ()-distanceInOneStep);
-            else setPosZ(getPosZ()+distanceInOneStep);
-        }
-         */
-        if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 350 &&
-                Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) >= 20) { //todo zmienić dolną wartość na równą promieniowi kolizji
+        int radius =20;
+        if (distanceToPlayer <= 350 && distanceToPlayer >= radius) { //todo zmienić dolną wartość na równą promieniowi kolizji
             setPosX(getPosX() - (toPlayerVector.x * distanceInOneStep));
             setPosZ(getPosZ() - (toPlayerVector.z * distanceInOneStep));
         }
+
+        if (player.isCanBeHurt() && distanceToPlayer < radius){
+            player.receiveDamage(getDamage());
+        }
+
+
+    }
+
+    public void updateDistanceToPLayer(Player player){
+        distanceToPlayer = Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ());
 
     }
 
