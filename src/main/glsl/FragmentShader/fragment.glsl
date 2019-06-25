@@ -58,6 +58,6 @@ void main(void) {
 	for (int i = 1; i < lightsCount; i++)
 		pixelColor+=vec4(o_lights[i].color.rgb*kd.rgb*nl[i]+ks.rgb*ls.rgb*rv[i],kd.a);
 
-	vec4 fogcolor = normalize(vec4(191f,232f,192f,1.0f));
+	vec4 fogcolor = vec4(0.05f, 0.05f, 0.05f,1.0f);
 	pixelColor=mix(fogcolor,pixelColor,visibility);
 }

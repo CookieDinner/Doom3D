@@ -1,9 +1,11 @@
 package Entities;
 
+import Engine.ShaderProgram;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,15 +19,16 @@ public class LiveEntity extends Entity {
         this.damage = damage;
     }
 
-    public boolean checkIfEntityDied(){
-        Random random = new Random();
+    public boolean checkIfEntityDied(int maxHealth, ArrayList deathspots, Model splat){
 
         if (getHealth() <=0){
-            setHealth(100);
-            setPosZ(random.nextInt(1000));
-            setPosX(random.nextInt(1000));
+            setHealth(maxHealth);
             return true;
         }
         return false;
+    }
+
+    public void receiveDamage(int damage){
+        setHealth(getHealth()-damage);
     }
 }
