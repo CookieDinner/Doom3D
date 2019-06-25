@@ -68,6 +68,8 @@ public class RendererUnit implements FileLoader{
 
     public void initBuffer() throws Exception {
 
+        glClearColor(1f, 0f, 0f, 1.0f);
+
         shader1 = new ShaderProgram();
         shader1.createVertexShader("vertex.glsl");
         shader1.createFragmentShader("fragment.glsl");

@@ -241,7 +241,7 @@ public class Doom3D implements GameLogicInterface {
 
         rendererUnit.render(window, angle_x, angle_y, camPos, camFront, camUp, camRight, mouseButton, counterForRotating, counterBound);
         if(counterForRotating<counterBound) counterForRotating++;
-        else if (counterForRotating==counterBound) counterForRotating=0;
+        else if (counterForRotating==counterBound   ) counterForRotating=0;
     }
 
     @Override

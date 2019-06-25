@@ -30,6 +30,7 @@ public class BonusHealthItem extends Entity{
         if (distanceToPlayer<radius) {
             player.healPlayer();
             enable=false;
+            new Thread(new Sound("bonus2.wav",15,0)).start();
         }
     }
 
