@@ -7,7 +7,7 @@ public class Main{
             boolean vSync = true;
 
             GameLogicInterface gameLogic = new Doom3D();
-            GameEngine gameEngine = new GameEngine("DOOM 3D GAME", 800, 600, vSync, gameLogic);
+            GameEngine gameEngine = new GameEngine("DOOM 3D GAME", 1280, 720, vSync, gameLogic);
             gameEngine.start();
 
         } catch (Exception excp) {

@@ -50,7 +50,7 @@ public class Lights {
         this.shaderProgram = shaderProgram;
         light = new Model(shaderProgram, shaderProgram,"lamp.obj","lamp.png","lampdiffuse.png","sky.png");
     }
-    public void createLights(){
+    public void createLights(ShaderProgram shaderProgram){
         shaderProgram.bind();
         //Passing the lights' uniform variables to the vertex shader
         for (int i = 0; i < lightsCount; i++) {
@@ -73,8 +73,8 @@ public class Lights {
         //Add the passing of the specific light array here
         //And, of course, don't repeat the light indexes
     }
-    public void drawLights(Matrix4f P, Matrix4f V) {
-        createLights();
+    public void drawLights(ShaderProgram shader,Matrix4f P, Matrix4f V) {
+        createLights(shader);
 
         for (int i = 0; i < lightsCount; i++) {
             M.identity().translate(lights[i][0][0], lights[i][0][1], lights[i][0][2]);

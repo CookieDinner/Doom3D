@@ -29,7 +29,7 @@ public class Doom3D implements GameLogicInterface {
     private double yaw, pitch;
 
     private Player player;
-    private int upperBoundOfDelay = 60;
+    private int upperBoundOfDelay = 10;
     private int delayForHurtingPLayer;
     private int delayForShootingEnemies;
 
@@ -188,7 +188,7 @@ public class Doom3D implements GameLogicInterface {
             delayForHurtingPLayer = 0;
         }
 
-        if (player.checkIfEntityDied(100) || window.isKeyPressed(GLFW_KEY_P)){
+        if (player.checkIfEntityDied(100,null,null) || window.isKeyPressed(GLFW_KEY_P)){
             player.move(spawnPoint.x, spawnPoint.z);
             yaw = 0.0f;
             camFront.set(1.0f,-0.09f,0.0f);

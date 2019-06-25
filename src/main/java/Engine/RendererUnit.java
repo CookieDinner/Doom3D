@@ -6,6 +6,8 @@ import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -34,6 +36,7 @@ public class RendererUnit implements FileLoader{
 
     private ShaderProgram shader1;
     private ShaderProgram shader2;
+    private ShaderProgram shader3;
 
     //Models declarations
 
@@ -45,6 +48,10 @@ public class RendererUnit implements FileLoader{
     private Model hudgun;
     private Model enemy;
     private Model heart;
+    private Model shot;
+    private Model blood;
+    private Model splat;
+    private ArrayList<Entity> deathspots = new ArrayList<>();
 
     private Map map = new Map();
 
@@ -75,8 +82,13 @@ public class RendererUnit implements FileLoader{
         shader2.createVertexShader("vertex_simp.glsl");
         shader2.createFragmentShader("fragment_simp.glsl");
 
+        shader3 = new ShaderProgram();
+        shader3.createVertexShader("blvertex.glsl");
+        shader3.createFragmentShader("blfragment.glsl");
+
         shader1.link();
         shader2.link();
+        shader3.link();
 
         lights = new Lights(shader1);
 
@@ -84,8 +96,7 @@ public class RendererUnit implements FileLoader{
         glDepthFunc(GL_LESS);
 
         //Culling the faces
-        //glCullFace(GL_BACK);
-        //glEnable(GL_CULL_FACE);
+        glEnable(GL_CULL_FACE);
 
 
         gun = new Model(shader1, shader2, "handgun.obj", "guntex.png","gundiffuse.png","darksky.png");
@@ -95,6 +106,10 @@ public class RendererUnit implements FileLoader{
         ground = new Model(shader1, shader2,"ground.obj", "metal_floor.png","metal_floor_diffuse.png","black.png");
         enemy = new Model(shader1, shader2,"alien.obj", "alien_tex.png", "alien_diffuse.png","black.png");
         heart = new Model(shader1, shader2, "heart.obj", "heart.png", "black.png", "black.png");
+        shot = new Model(shader2, shader2, "shot.obj","shot.png","black.png","black.png");
+        blood = new Model(shader1, shader2, "blood.obj","blood.png","black.png","black.png");
+        splat = new Model(shader3, shader3, "bloodsplat.obj", "bloodsplat.png","bloodsplat.png","black.png");
+
 
 
         /*dragon =new LiveEntity(300,300, new Model(shader1, shader2,"dragon.obj",
@@ -103,16 +118,16 @@ public class RendererUnit implements FileLoader{
 
 
 
-        enemiesList.add(new Enemy(42,248,enemy,100,20));
-        enemiesList.add(new Enemy(243,270,enemy,100,20));
-        enemiesList.add(new Enemy(446,84,enemy,100,20));
-        enemiesList.add(new Enemy(430,465,enemy,100,20));
-        enemiesList.add(new Enemy(87,700,enemy,100,20));
-        enemiesList.add(new Enemy(261,755,enemy,100,20));
-        enemiesList.add(new Enemy(700,1500,enemy,100,20));
-        enemiesList.add(new Enemy(582,1500,enemy,100,20));
-        enemiesList.add(new Enemy(466,1500,enemy,100,20));
-        enemiesList.add(new Enemy(350,1500,enemy,100,20));
+        enemiesList.add(new Enemy(42,248,enemy,90,20));
+        enemiesList.add(new Enemy(243,270,enemy,90,20));
+        enemiesList.add(new Enemy(446,84,enemy,90,20));
+        enemiesList.add(new Enemy(430,465,enemy,90,20));
+        enemiesList.add(new Enemy(87,700,enemy,90,20));
+        enemiesList.add(new Enemy(261,755,enemy,90,20));
+        enemiesList.add(new Enemy(700,1500,enemy,90,20));
+        enemiesList.add(new Enemy(582,1500,enemy,90,20));
+        enemiesList.add(new Enemy(466,1500,enemy,90,20));
+        enemiesList.add(new Enemy(350,1500,enemy,90,20));
 
 
 
@@ -182,7 +197,7 @@ public class RendererUnit implements FileLoader{
 
         //Binding the specific shader before drawing an object that uses it
         //Drawing the lights and initializing them in the shader at the same time
-        lights.drawLights(P, V);
+        lights.drawLights(shader1,P, V);
         //glBindVertexArray(vaoId);
 
 
@@ -223,14 +238,16 @@ public class RendererUnit implements FileLoader{
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
 
             //todo Moving Enemies
-            enemy.moveInPlayerDirection(player,0.4f);
+            enemy.setToPlayerVector(player);
+            //STEP
+            enemy.moveInPlayerDirection(player,1.2f);
 
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
-            enemy.checkIfEntityDied(100);
+            enemy.checkIfEntityDied(90, deathspots, splat);
             enemy.respawnIfTimeExceeded();
 
-            enemy.setToPlayerVector(player);
+
 
             M.identity()
                     .translate(enemy.getPosX(),1.0f,enemy.getPosZ())
@@ -242,7 +259,7 @@ public class RendererUnit implements FileLoader{
             enemy.updateCurrentVectors((new Matrix4f().identity()
                     .translate(enemy.getPosX(),0.0f,enemy.getPosZ())
 //                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
-                    .scale(scaleEnemiesSize) //todo poprawic collision boxy
+                    .scale(scaleEnemiesSize) //todo poprawic collision boxy na promieniowe
             ));
         }
 
@@ -251,26 +268,33 @@ public class RendererUnit implements FileLoader{
         // GROUND AND THE SKYBOX DRAWN AT THE END
         M.identity().translate(0,0,0);
         M.scale(60.0f,1.0f,60.0f);
+        glCullFace(GL_FRONT);
         ground.draw(M,V,P, texNumber); //1
         texNumber+=3;
 
 
         M.identity().rotate(3.14f,new Vector3f(0.0f,0.0f,1.0f)).translate(0.0f,-6000.0f,0.0f).scale(15000.0f,15000.0f,15000.0f);
         skybox.draw(M,V,P, texNumber); //1
+        glCullFace(GL_BACK);
         texNumber+=3;
 
+        lights.createLights(shader3);
+        for (int i=0;i<deathspots.size();i++){
+            M.identity().translate(deathspots.get(i).getPosX(),2.0f,deathspots.get(i).getPosZ()).scale(4.0f,4.0f,4.0f);
+            deathspots.get(i).getModel().draw(M,V,P,1);
+        }
 
 
         // HERE ALL OF THE HUD ELEMENTS WILL BE RENDERED (INCLUDING THE GUN)
         // Those parts absolutely have to be put at the end, because we are completely clearing the View Matrix
-        M.identity();
-        V.identity().translate(-1.75f,-8.0f,-12.0f).rotate(-3.14f, new Vector3f(0.0f,1.0f,0.0f));//.rotate(-3.14f/3, new Vector3f(1.0f,0.0f,0.0f));
-        V.scale(0.3f,0.3f,0.3f);
+
+
+
         // Clearing all of the depth information in the depth buffers so that there are no intersections of the HUD with the ingame objects
         glClear(GL_DEPTH_BUFFER_BIT);
 
         if(mouseButton == GLFW_MOUSE_BUTTON_LEFT && player.isShowShootAnimation() ){
-            V.rotate(-3.14f/14, new Vector3f(1.0f,0.0f,0.0f));
+
             float theClosestEnemy = Float.MAX_VALUE;
             int whichEnemyIsTheClosest=-1, i=0;
 
@@ -302,16 +326,32 @@ public class RendererUnit implements FileLoader{
             }
 
             if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {
-                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+                Enemy hurt;
+                hurt = enemiesList.get(whichEnemyIsTheClosest);
+                hurt.receiveDamage(player.getDamage());
+                M.identity().translate(hurt.getPosX(),7.0f,hurt.getPosZ())
+                        .scale(1.2f,1.2f,1.2f);
+                blood.draw(M,V,P,1);
                 System.out.println(enemiesList.get(whichEnemyIsTheClosest).getHealth());
             }
 
             player.setCanShoot(false);
-
         }
-        hudgun.draw(M,V,P,texNumber);
-        texNumber+=3;
 
+        M.identity();
+        V.identity().translate(-1.75f,-8.0f,-12.0f).rotate(-3.14f, new Vector3f(0.0f,1.0f,0.0f));//.rotate(-3.14f/3, new Vector3f(1.0f,0.0f,0.0f));
+        V.scale(0.3f,0.3f,0.3f);
+
+        if (!player.isCanShoot()){
+            V.rotate(-3.14f/35, new Vector3f(1.0f,0.0f,0.0f));
+            hudgun.draw(M,V,P,texNumber);
+            V.identity().translate(-0.032f,-1.82f,-9.0f);
+            shot.draw(M,V,P,texNumber);
+        }
+        else
+            hudgun.draw(M,V,P,texNumber);
+
+        texNumber+=3;
 
 
         M.identity();
@@ -321,6 +361,7 @@ public class RendererUnit implements FileLoader{
             V.scale(0.25f,0.25f,0.25f);
             heart.getModel().draw(M,V,P,texNumber);
         }
+
 
 
 

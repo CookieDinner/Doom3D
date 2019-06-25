@@ -60,7 +60,7 @@ public class CollisionUnit {
                 oldZCoordinate = oldZCoordinate-1;
             else oldZCoordinate = oldZCoordinate+1;
 
-            entity.move(oldXCoordinate,oldZCoordinate);
+                entity.move(oldXCoordinate,oldZCoordinate);
         }
     }
 

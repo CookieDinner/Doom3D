@@ -1,9 +1,13 @@
 package Entities;
 
+import Engine.ShaderProgram;
 import Engine.Utils;
 import lombok.Getter;
 import lombok.Setter;
 import org.joml.Vector3f;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -22,7 +26,7 @@ public class Enemy extends LiveEntity {
         spawnPointX = posX;
         spawnPointZ = posZ;
         died = false;
-        respawnUpperBound = 1800;
+        respawnUpperBound = 200;
         respawnDelay = 0;
     }
 
@@ -39,11 +43,17 @@ public class Enemy extends LiveEntity {
 
     public void moveInPlayerDirection(Player player, float distanceInOneStep){
 
-        if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 250){
+        /*if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 250){
             if (getPosX() > player.getPosX()) setPosX(getPosX()-distanceInOneStep);
             else setPosX(getPosX()+distanceInOneStep);
             if (getPosZ() > player.getPosZ()) setPosZ(getPosZ()-distanceInOneStep);
             else setPosZ(getPosZ()+distanceInOneStep);
+        }
+         */
+        if (Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) <= 350 &&
+                Utils.distance2DBetween2Points(player.getPosX(),player.getPosZ(),getPosX(),getPosZ()) >= 20) { //todo zmienić dolną wartość na równą promieniowi kolizji
+            setPosX(getPosX() - (toPlayerVector.x * distanceInOneStep));
+            setPosZ(getPosZ() - (toPlayerVector.z * distanceInOneStep));
         }
 
     }
@@ -51,6 +61,7 @@ public class Enemy extends LiveEntity {
     public void respawnIfTimeExceeded(){
         if (died){
             respawnDelay++;
+
             if (respawnDelay==respawnUpperBound){
                 move(spawnPointX,spawnPointZ);
                 died = false;
@@ -60,9 +71,10 @@ public class Enemy extends LiveEntity {
     }
 
     @Override
-    public boolean checkIfEntityDied(int maxHealth) {
-        boolean result = super.checkIfEntityDied(maxHealth);
+    public boolean checkIfEntityDied(int maxHealth, ArrayList deathspots, Model splat) {
+        boolean result = super.checkIfEntityDied(maxHealth, deathspots, splat);
         if (result) {
+            deathspots.add(new Entity(getPosX(),getPosZ(),splat));
             move(-1000,-1000);
             died=true;
         }

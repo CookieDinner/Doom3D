@@ -1,7 +1,11 @@
 package Entities;
 
+import Engine.ShaderProgram;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -15,7 +19,7 @@ public class LiveEntity extends Entity {
         this.damage = damage;
     }
 
-    public boolean checkIfEntityDied(int maxHealth){
+    public boolean checkIfEntityDied(int maxHealth, ArrayList deathspots, Model splat){
 
         if (getHealth() <=0){
             setHealth(maxHealth);

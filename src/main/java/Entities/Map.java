@@ -25,7 +25,7 @@ public class Map {
         String wallname;
         for (int i = 1; i <= numOfWalls; i++) {
                 wallname = "walls/" + i + ".obj";
-                walls.add(new Entity(0.0f, 0.0f, new Model(shader1, shader2, wallname, "metal_plate_base.png", "metal_plate_diff.png", "black.png")));
+                walls.add(new Entity(0.0f, 0.0f, new Model(shader1, shader2, wallname, "metal_plate_base_darker.png", "metal_plate_diff.png", "black.png")));
                 collisionUnit.addToList(walls.get(i - 1));
         }
 
