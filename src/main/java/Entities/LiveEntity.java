@@ -3,8 +3,6 @@ package Entities;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Random;
-
 @Getter
 @Setter
 public class LiveEntity extends Entity {
@@ -17,13 +15,10 @@ public class LiveEntity extends Entity {
         this.damage = damage;
     }
 
-    public boolean checkIfEntityDied(){
-        Random random = new Random();
+    public boolean checkIfEntityDied(int maxHealth){
 
         if (getHealth() <=0){
-            setHealth(100);
-            setPosZ(random.nextInt(500));
-            setPosX(random.nextInt(500));
+            setHealth(maxHealth);
             return true;
         }
         return false;

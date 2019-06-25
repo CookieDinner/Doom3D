@@ -186,7 +186,7 @@ public class Doom3D implements GameLogicInterface {
             delayForHurtingPLayer = 0;
         }
 
-        if (player.checkIfEntityDied() || window.isKeyPressed(GLFW_KEY_P)){
+        if (player.checkIfEntityDied(100) || window.isKeyPressed(GLFW_KEY_P)){
             player.move(spawnPoint.x, spawnPoint.z);
             yaw = 0.0f;
             camFront.set(1.0f,-0.09f,0.0f);

@@ -101,6 +101,8 @@ public class RendererUnit implements FileLoader{
                         "dragon.png","dragondiffuse.png","black.png"), 1000,100);
         collisionUnit.addToList(dragon);*/
 
+
+
 //        enemiesList.add(new Enemy(-50,-50,enemy,100,20));
         enemiesList.add(new Enemy(50,50,enemy,100,20));
 
@@ -207,18 +209,21 @@ public class RendererUnit implements FileLoader{
 
 
         for(Enemy enemy: enemiesList){
+            float scaleEnemiesSize = 1.5f;
             float oldX = enemy.getPosX() , oldZ = enemy.getPosZ();
+
+            //todo Movine Enemies
 //            enemy.moveInPlayerDirection(player,0.4f);
 
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
-            enemy.checkIfEntityDied();
+            enemy.checkIfEntityDied(100);
             enemy.setToPlayerVector(player);
 
             M.identity()
                     .translate(enemy.getPosX(),1.0f,enemy.getPosZ())
                     .rotate((float) Math.atan2(enemy.getToPlayerVector().x,enemy.getToPlayerVector().z) -0.4f ,0,1,0)
-                    .scale(1.3f,1.3f,1.3f);
+                    .scale(scaleEnemiesSize);
             enemy.getModel().draw(M,V,P, texNumber); //2
 
 
@@ -230,7 +235,7 @@ public class RendererUnit implements FileLoader{
             enemy.updateCurrentVectors((new Matrix4f().identity()
                     .translate(enemy.getPosX(),0.0f,enemy.getPosZ())
 //                    .rotate(-3.14f/6,new Vector3f(0.0f,1.0f,0.0f))
-                    .scale(1.3f) //todo poprawic collision boxy
+                    .scale(scaleEnemiesSize) //todo poprawic collision boxy
             ));
 //
 //            System.out.println("++++++++PO EDYCJI");
@@ -280,7 +285,7 @@ public class RendererUnit implements FileLoader{
 //                System.out.println(Math.atan2(enemy.getToPlayerVector().x,enemy.getToPlayerVector().z));
 
 //                if (player.isEnemyInsideGunViewfinder(distance,vectorsMultiplication)){
-                if (-(1 - Math.atan(1/distance)) > vectorsMultiplication){
+                if (-(1 - Math.atan(1/distance/2)) > vectorsMultiplication){
                     if (theClosestEnemy>distance){
                         theClosestEnemy = distance;
                         whichEnemyIsTheClosest = i;
@@ -291,7 +296,7 @@ public class RendererUnit implements FileLoader{
             }
 
             if (player.isCanShoot() && whichEnemyIsTheClosest!=-1) {
-                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
+//                enemiesList.get(whichEnemyIsTheClosest).receiveDamage(player.getDamage());
                 player.setCanShoot(false);
             }
 
