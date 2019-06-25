@@ -168,12 +168,12 @@ public class Doom3D implements GameLogicInterface {
         if (window.isKeyPressed(GLFW_KEY_A) && !window.isKeyPressed(GLFW_KEY_W) && !window.isKeyPressed(GLFW_KEY_S) && !window.isKeyPressed(GLFW_KEY_D)) {
             camPos.sub(new Vector3f().set(camRight).mul((float) glfwGetTime() * movementSpeed));
         }
-            //UP
-        if (window.isKeyPressed(GLFW_KEY_SPACE) && !window.isKeyPressed(GLFW_KEY_LEFT_CONTROL))
-            camPos.add(new Vector3f().set(camUp).normalize().mul((float)glfwGetTime()*movementSpeed));
-            //DOWN
-        if (window.isKeyPressed(GLFW_KEY_LEFT_CONTROL) && !window.isKeyPressed(GLFW_KEY_SPACE))
-            camPos.sub(new Vector3f().set(camUp).normalize().mul((float)glfwGetTime()*movementSpeed));
+//            //UP
+//        if (window.isKeyPressed(GLFW_KEY_SPACE) && !window.isKeyPressed(GLFW_KEY_LEFT_CONTROL))
+//            camPos.add(new Vector3f().set(camUp).normalize().mul((float)glfwGetTime()*movementSpeed));
+//            //DOWN
+//        if (window.isKeyPressed(GLFW_KEY_LEFT_CONTROL) && !window.isKeyPressed(GLFW_KEY_SPACE))
+//            camPos.sub(new Vector3f().set(camUp).normalize().mul((float)glfwGetTime()*movementSpeed));
 
 
 

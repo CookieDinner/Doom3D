@@ -196,8 +196,6 @@ public class RendererUnit implements FileLoader{
             window.setResized(false);
         }
 
-//        player.debugPosition();
-
         V.identity().lookAt(camPos, new Vector3f().set(camPos).add(camFront), camUp);
         P.identity().perspective(50.0f*(float)Math.PI/180.0f, window.getScreenRatio(),0.01f,500000.0f);
 
@@ -245,7 +243,7 @@ public class RendererUnit implements FileLoader{
 
             enemy.setToPlayerVector(player);
             enemy.updateDistanceToPLayer(player);
-//            enemy.moveInPlayerDirection(player,1.2f);
+            enemy.moveInPlayerDirection(player,1.2f);
             collisionUnit.abandonMovingChangesWhenDetectedCollision(enemy,oldX,oldZ);
 
             enemy.checkIfEntityDied(90, deathspots, splat);
